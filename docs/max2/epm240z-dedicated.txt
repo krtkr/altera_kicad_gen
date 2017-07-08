@@ -1,0 +1,29 @@
+"Dedicated Pin Information for the MAX® IIZ 
+EPM240Z Devices 
+Version 1.0     "		
+		
+		
+Dedicated Pin	68-Pin MBGA	100-Pin MBGA
+IO/GCLK0	E2	F2
+IO/GCLK1	E1	E1
+IO/GCLK2	E9	F10
+IO/GCLK3	E8	G11
+IO/DEV_OE	J6	L8
+IO/DEV_CLRn	H7	K8
+TDI	H1	J2
+TMS	G1	J1
+TCK	J1	K1
+TDO	H2	K2
+GND(3)	"C5, E3, E7,G5,C6"	"E4, G4, H5, H7, G8, E8, D7, D5"
+VCCINT (1)	D7	"G3, E9"
+VCCIO1 (2)	"D3, G4"	"E3, J4, J8"
+VCCIO2 (2)	"C4, F7"	"G9, C8, C4"
+No Connect (N.C.)	-	-
+Total User I/O Pins	54	80
+		
+		
+Notes:		
+(1)  All VCCINT pins must be connected to 1.8 V.		
+"(2)  Each set of VCCIO pins (VCCIO1 or VCCIO2) can be connected to 3.3 V, 2.5 V, 1.8 V, or 1.5 V."		
+"(3)  MAX II and MAX IIG devices separate out I/O ground (GNDIO) and core ground (GNDINT), but MAX IIZ devices unify ground to GND only."		
+      		

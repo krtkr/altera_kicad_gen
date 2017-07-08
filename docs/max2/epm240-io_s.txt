@@ -1,0 +1,101 @@
+Bank Number	Pad Number Orientation	Pin/Pad Function	Optional Function(s)	100-Pin TQFP	100-Pin FBGA 	100-Pin MBGA 				
+B1	0	IO		2	C2	B1				
+B1	1	IO		3	B1	C2				
+B1	2	IO		4	C1	C1				
+B1	3	IO		5	D3	D3				
+B1	4	IO		6	D2	D2				
+B1	5	IO		7	D1	D1				
+B1	6	IO		8	E3	E2				
+B1	7	VCCIO1								
+B1	8	GNDIO								
+	9	GNDINT								
+B1	10	IO	GCLK0	12	E2	F2				
+	11	VCCINT								
+B1	12	IO	GCLK1	14	E1	E1				
+B1	13	IO		15	F2	F1				
+B1	14	IO		16	F3	G1				
+B1	15	IO		17	F1	G2				
+B1	16	IO		18	G1	F3				
+B1	17	IO		19	H1	H1				
+B1	18	IO		20	G2	H3				
+B1	19	IO		21	G3	H2				
+B1	20	TMS		22	J1	J1				
+B1	21	TDI		23	H2	J2				
+B1	22	TCK		24	H3	K1				
+B1	24	TDO		25	J2	K2				
+B1	25	IO		26	K1	L1				
+B1	26	IO		27	J3	L2				
+B1	27	IO		28	K2	K3				
+B1	28	IO		29	K3	L3				
+B1	29	IO		30	H4	K4				
+B1	30	VCCIO1								
+B1	31	GNDIO								
+B1	32	IO		33	J4	L4				
+B1	33	IO		34	K4	K5				
+B1	34	IO		35	J5	L5				
+B1	35	IO		36	K5	L6				
+B1	36	IO		37	H5	J5				
+B1	37	IO		38	K6	K6				
+B1	38	IO		39	H6	J7				
+B1	39	IO		40	J6	J6				
+B1	40	IO		41	K7	L7				
+B1	41	IO		42	K8	K7				
+B1	42	IO	DEV_OE	43	J7	L8				
+B1	43	IO	DEV_CLRn	44	K9	K8				
+B1	44	VCCIO1								
+B1	45	GNDIO								
+B1	46	IO		47	H7	L9				
+B1	47	IO		48	J8	K9				
+B1	48	IO		49	H8	L10				
+B1	49	IO		50	K10	K10				
+B1	50	IO		51	J9	L11				
+B2	51	IO		52	H9	K11				
+B2	52	IO		53	J10	J10				
+B2	53	IO		54	H10	J11				
+B2	54	IO		55	G8	H9				
+B2	55	IO		56	G9	H10				
+B2	56	IO		57	G10	H11				
+B2	57	IO		58	F10	G10				
+B2	58	VCCIO2								
+B2	59	GNDIO								
+B2	60	IO		61	F9	F9				
+B2	61	IO	GCLK2	62	F8	F10				
+	62	VCCINT								
+B2	63	IO	GCLK3	64	E10	G11				
+	64	GNDINT								
+B2	65	IO		66	E9	F11				
+B2	66	IO		67	E8	E11				
+B2	67	IO		68	D10	E10				
+B2	68	IO		69	C10	D9				
+B2	69	IO		70	D9	D11				
+B2	70	IO		71	D8	D10				
+B2	71	IO		72	B10	C11				
+B2	72	IO		73	C9	C10				
+B2	73	IO		74	C8	B11				
+B2	74	IO		75	B9	B10				
+B2	75	IO		76	A10	A11				
+B2	76	IO		77	A9	A10				
+B2	77	IO		78	B8	B9				
+B2	78	GNDIO								
+B2	79	VCCIO2								
+B2	80	IO		81	A8	A9				
+B2	81	IO		82	C7	B8				
+B2	82	IO		83	B7	A8				
+B2	83	IO		84	A7	B7				
+B2	84	IO		85	A6	A7				
+B2	85	IO		86	B6	C6				
+B2	86	IO		87	A5	B6				
+B2	87	IO		88	C6	C7				
+B2	88	IO		89	B5	A6				
+B2	89	IO		90	C5	C5				
+B2	90	IO		91	A4	A5				
+B2	91	IO		92	B4	B5				
+B2	92	GNDIO								
+B2	93	VCCIO2								
+B2	94	IO		95	C4	A4				
+B2	95	IO		96	A3	B4				
+B2	96	IO		97	A2	A3				
+B2	97	IO		98	B3	B3				
+B2	98	IO		99	C3	A2				
+B2	99	IO		100	A1	B2				
+B2	100	IO		1	B2	A1				

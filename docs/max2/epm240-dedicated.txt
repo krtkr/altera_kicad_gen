@@ -1,0 +1,28 @@
+"Dedicated Pin Information for the MAX® II 
+EPM240 / EPM240G Devices 
+Version 1.4"									
+									
+									
+Dedicated Pin	100-Pin TQFP	100-Pin FBGA 	100-Pin MBGA 						
+IO/GCLK0	12	E2	F2						
+IO/GCLK1	14	E1	E1						
+IO/GCLK2	62	F8	F10						
+IO/GCLK3	64	E10	G11						
+IO/DEV_OE	43	J7	L8						
+IO/DEV_CLRn	44	K9	K8						
+TDI	23	H2	J2						
+TMS	22	J1	J1						
+TCK	24	H3	K1						
+TDO	25	J2	K2						
+GNDINT	"11, 65"	"F5, E6"	"G4, E8"						
+GNDIO	"10, 32, 46, 60, 79, 93"	"E5, G5, G7, F6, D7, D5"	"E4, H5, H7, G8, D7, D5"						
+VCCINT (1)	"13, 63"	"F4, E7"	"G3, E9"						
+VCCIO1 (2)	"9, 31, 45"	"E4, G4, G6"	"E3, J4, J8"						
+VCCIO2 (2)	"59, 80, 94"	"F7, D6, D4"	"G9, C8, C4"						
+No Connect (N.C.)	-	 -	 -						
+Total User I/O Pins	80	80	80						
+
+Notes:									
+"1.  For EPM240 devices, all VCCINT pins must be connected to either 3.3 V or 2.5 V, but not a combination of both."
+"    For EPM240G devices, all VCCINT pins must be connected to 1.8 V."
+"2.  Each set of VCCIO pins (VCCIO1 or VCCIO2) can be connected to 3.3 V, 2.5 V, 1.8 V, or 1.5 V."	
