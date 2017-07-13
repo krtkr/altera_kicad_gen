@@ -200,9 +200,9 @@ class Max2Parser(object):
             for dev in self.devices_list:
                 pad_num = io_pin[self.pad_num_idx]
                 pad_pin_name = io_pin[dev.package_io_idx]
+                pad_type = gen.Pad.BIDIR
+                pad_pos = gen.Pad.POS_RIGHT
                 bank = io_pin[self.bank_num_idx]
-                if len(bank) == 0:
-                    bank = 'POWER'
                 fnc = io_pin[self.pad_fnc_idx]
                 fnc_opt = io_pin[self.pad_opt_fnc_idx]
                 if len(pad_pin_name) == 0:
@@ -213,7 +213,24 @@ class Max2Parser(object):
                         pad_pin_name = self.dedicated_table[fnc][dev.package_dedicated_idx].pop(0)
                     else:
                         continue
-                dev.pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt))
+                #m = re.search("^(?P<cnt>[0-9]+).+(?P<tp>MBGA|FBGA|QFP)$", self.__package_name)
+                if (not re.match("^(VCC|GND)", fnc) is None):
+                    pad_type = gen.Pad.POWER_IN
+                    # Move all power pins to power bank
+                    bank = 'POWER'
+                    if (not re.match("^VCC", fnc) is None):
+                        pad_pos = gen.Pad.POS_LEFT
+                elif (not re.match("^(TCK|TDO|TDI|TMS)$", fnc) is None):
+                    pad_pos = gen.Pad.POS_LEFT
+                    if (fnc == 'TCK'):
+                        pad_type = gen.Pad.IN_CLK
+                    elif (fnc == 'TDO'):
+                        pad_type = gen.Pad.OUT
+                    else:
+                        pad_type = gen.Pad.IN
+                elif (not re.match("GCLK", fnc_opt) is None):
+                    pad_type = gen.Pad.BIDIR_CLK
+                dev.pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt, pad_type, pad_pos))
         ''' Add NC pins '''
         if self.dedicated_table.has_key("NC"):
             for dev in self.devices_list:
