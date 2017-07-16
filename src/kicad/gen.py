@@ -36,6 +36,8 @@ class Pad(object):
         self.fnc_opt = fnc_opt
         self.pad_type = pad_type
         self.pad_pos = pad_pos
+        # This flag determines whether 
+        self.write_to_file = True
     
     def fnc_name(self):
         if len(self.fnc_opt) == 0:
@@ -233,7 +235,7 @@ class GenLib(object):
         symbol_zero_offset = ((min_vertical_pins + 2) * 100) / 2
         symbol_width = max([
                 ((max_horizontal_pins + 2) * 100) + 200,
-                (max_left_pin_name_len + max_right_pin_name_len + 2) * 50
+                ((max_left_pin_name_len + max_right_pin_name_len + 2) + 1) / 2 * 2 * 50
             ])
         # Preset parameters
         pin_length = 150
@@ -257,7 +259,7 @@ class GenLib(object):
         for bank in sorted(banks_stats.keys()):
             symbol_unit = banks_stats[bank]
             # Per unit variables
-            current_symbol_size = [symbol_width, (symbol_unit.get_pins_vertical() + 2) * 100]
+            current_symbol_size = [symbol_width, (symbol_unit.get_pins_vertical() + 1) * 100]
             self.__lib_file.write('S ' + str(-current_symbol_size[0]/2) + ' ' + str(symbol_zero_offset) + ' ' + str(current_symbol_size[0]/2) + ' ' + str(symbol_zero_offset - current_symbol_size[1]) + ' ' + str(unit) + ' 1     0 f\n')
             pos_left = symbol_zero_offset - 100
             pos_right = symbol_zero_offset - 100
@@ -277,7 +279,8 @@ class GenLib(object):
                     elif (pad.pad_pos == Pad.POS_TOP):
                         pin_pos = [pos_top, symbol_zero_offset + pin_length]
                         pos_top = pos_top + 100
-                    self.__lib_file.write('X ' + pad.fnc_name() + ' ' + pad.pin + ' ' + str(pin_pos[0]) + ' ' + str(pin_pos[1]) + ' ' + str(pin_length) + ' ' + self.__kicad_orient[pad.pad_pos] + ' 50 50 ' + str(unit) + ' 1 ' + self.__kicad_types[pad.pad_type] + '\n')
+                    if (pad.write_to_file):
+                        self.__lib_file.write('X ' + pad.fnc_name() + ' ' + pad.pin + ' ' + str(pin_pos[0]) + ' ' + str(pin_pos[1]) + ' ' + str(pin_length) + ' ' + self.__kicad_orient[pad.pad_pos] + ' 50 50 ' + str(unit) + ' 1 ' + self.__kicad_types[pad.pad_type] + '\n')
             unit = unit + 1
         self.__lib_file.write('ENDDRAW\n')
         self.__lib_file.write('ENDDEF\n')

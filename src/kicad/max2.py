@@ -9,6 +9,7 @@ import os
 import re
 import math
 import csv
+import operator
 
 import gen
 import util
@@ -67,6 +68,9 @@ class Max2Device(gen.Device):
         self.package_name = pkg_info[0]
         self.package_io_idx = -1
         self.package_dedicated_idx = -1
+        self.io_pads = []
+        self.power_pads = []
+        self.power_banks = 0
     
     def __find_pkg_info(self):
         '''
@@ -230,7 +234,24 @@ class Max2Parser(object):
                         pad_type = gen.Pad.IN
                 elif (not re.match("GCLK", fnc_opt) is None):
                     pad_type = gen.Pad.BIDIR_CLK
-                dev.pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt, pad_type, pad_pos))
+                if (bank == 'POWER'):
+                    match = re.match("VCCIO([0-9])", fnc)
+                    if (not match is None):
+                        power_banks = int(match.group(1))
+                        if (power_banks > dev.power_banks):
+                            for i in range(dev.power_banks, power_banks):
+                                vcc_pad_spacer = gen.Pad(-1, 'NC', bank, "VCCIO" + str(i) + "_", '', pad_type, pad_pos)
+                                vcc_pad_spacer.write_to_file = False
+                                dev.power_pads.append(vcc_pad_spacer)
+                                gnd_pad_spacer = gen.Pad(-1, 'NC', bank, "GNDINT" + str(i) + "_", '', pad_type)
+                                gnd_pad_spacer.write_to_file = False
+                                dev.power_pads.append(gnd_pad_spacer)
+                            dev.power_banks = power_banks
+                    dev.power_pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt, pad_type, pad_pos))
+                else:
+                    dev.io_pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt, pad_type, pad_pos))
+        for dev in self.devices_list:
+            dev.pads = dev.io_pads + sorted(dev.power_pads, key=operator.attrgetter('fnc'))
         ''' Add NC pins '''
         if self.dedicated_table.has_key("NC"):
             for dev in self.devices_list:
