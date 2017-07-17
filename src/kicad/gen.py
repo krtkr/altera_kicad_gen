@@ -88,6 +88,8 @@ class SymbolUnit(object):
         self.__pins_right = 0
         self.__pins_horizontal = 0
         self.__pins_vertical = 0
+        self.max_left_pin_name_len = 0
+        self.max_right_pin_name_len = 0
     
     def get_pins_top(self):
         return self.__pins_top
@@ -188,8 +190,8 @@ class GenLib(object):
         min_horizontal_pins = 65535
         max_vertical_pins = 0
         min_vertical_pins = 65535
-        max_left_pin_name_len = 0
-        max_right_pin_name_len = 0
+        max_pin_len = 0
+        max_pin_text_len = 0
         # Interate first time over pad to get required for symbol generation info
         for pad in dev.pads:
             if (not banks_stats.has_key(pad.bank)):
@@ -198,20 +200,26 @@ class GenLib(object):
                 banks_stats[pad.bank].inc_pins_bot()
             elif (pad.pad_pos == Pad.POS_LEFT):
                 banks_stats[pad.bank].inc_pins_left()
-                max_left_pin_name_len = max([
-                        max_left_pin_name_len,
-                        len(pad.fnc_name())
-                    ])
+                if (pad.write_to_file):
+                    banks_stats[pad.bank].max_left_pin_name_len = max([
+                            banks_stats[pad.bank].max_left_pin_name_len,
+                            len(pad.fnc_name())
+                        ])
             elif (pad.pad_pos == Pad.POS_RIGHT):
                 banks_stats[pad.bank].inc_pins_right()
-                max_right_pin_name_len = max([
-                        max_right_pin_name_len,
-                        len(pad.fnc_name())
-                    ])
+                if (pad.write_to_file):
+                    banks_stats[pad.bank].max_right_pin_name_len = max([
+                            banks_stats[pad.bank].max_right_pin_name_len,
+                            len(pad.fnc_name())
+                        ])
             elif (pad.pad_pos == Pad.POS_TOP):
                 banks_stats[pad.bank].inc_pins_top()
             else:
                 raise NameError("Unexpected value at pad.pad_pos")
+            max_pin_len = max([
+                    max_pin_len,
+                    len(pad.pin)
+                ])
         for symbol_unit in banks_stats.values():
             max_horizontal_pins = max([
                 max_horizontal_pins,
@@ -230,15 +238,24 @@ class GenLib(object):
                 symbol_unit.get_pins_vertical()
                 ])
         
+        for bank_stat in banks_stats.values():
+            max_pin_text_len = max([
+                max_pin_text_len,
+                bank_stat.max_left_pin_name_len + bank_stat.max_right_pin_name_len
+                ])
+        
         # Per dev variables
         units_count = len(banks_stats)
         symbol_zero_offset = ((min_vertical_pins + 2) * 100) / 2
         symbol_width = max([
                 ((max_horizontal_pins + 2) * 100) + 200,
-                ((max_left_pin_name_len + max_right_pin_name_len + 2) + 1) / 2 * 2 * 50
+                ((max_pin_text_len + 2) + 1) / 2 * 2 * 50
             ])
         # Preset parameters
-        pin_length = 150
+        pin_length = (max_pin_len + 1) * 50
+        # According to KLC we use 100mil grid, pin origin must lie on grid nodes (IEC-60617):
+        if (symbol_width/2 + pin_length) % 100:
+            symbol_width = symbol_width + 100
         # Calculated parameters
         refdes_pos = [-symbol_width/2 + 50, symbol_zero_offset + 50]
         name_pos = [0, symbol_zero_offset + 50]
