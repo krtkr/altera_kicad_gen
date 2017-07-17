@@ -232,8 +232,10 @@ class Max2Parser(object):
                         pad_type = gen.Pad.OUT
                     else:
                         pad_type = gen.Pad.IN
-                elif (not re.match("GCLK", fnc_opt) is None):
-                    pad_type = gen.Pad.BIDIR_CLK
+                elif (fnc == 'IO'):
+                    fnc = 'IO_' + bank
+                    if (not re.match("GCLK", fnc_opt) is None):
+                        pad_type = gen.Pad.BIDIR_CLK
                 if (bank == 'POWER'):
                     match = re.match("VCCIO([0-9])", fnc)
                     if (not match is None):
