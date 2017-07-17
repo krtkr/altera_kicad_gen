@@ -201,7 +201,6 @@ class GenLib(object):
         m_text_width = max([
                 4,
                 len(dev.name.upper()),
-                len(dev.footprint)
             ]) * 50
         # Calculated parameters
         refdes_pos = [0, 50]
