@@ -229,7 +229,8 @@ class GenLib(object):
                     (m_text_height/2 + symbol_unit.get_max_bot_pin_name_len() * 50) * 2 + 100,
                 ])
             symbol_width = max([
-                    (symbol_unit.get_max_pins_horizontal() + 1) * 100,
+                    (symbol_unit.get_max_pins_horizontal() + symbol_unit.get_max_left_pin_name_len() + 1) * 100,
+                    (symbol_unit.get_max_pins_horizontal() + symbol_unit.get_max_right_pin_name_len() + 1) * 100,
                     (m_text_width/2 + symbol_unit.get_max_left_pin_name_len() * 50) * 2 + 100,
                     (m_text_width/2 + symbol_unit.get_max_right_pin_name_len() * 50) * 2 + 100,
                 ])
