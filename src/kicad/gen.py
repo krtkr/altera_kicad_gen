@@ -18,6 +18,7 @@ class Pad(object):
     IN = 4
     IN_CLK = 5
     OUT = 6
+    NO_CONNECT = 7
     
     # Represents pad position
     POS_LEFT = 0
@@ -143,6 +144,7 @@ class GenLib(object):
         Pad.IN : 'I',
         Pad.IN_CLK : 'I C',
         Pad.OUT : 'O',
+        Pad.NO_CONNECT : 'N N'
         }
     
     # Map pin position on symbol to pin orientation
@@ -241,7 +243,11 @@ class GenLib(object):
             pos_left = symbol_height / 2 - 100
             pos_right = symbol_height / 2 - 100
             pos_top = -(symbol_unit.get_pins_top() - 1) * 50
+            if (pos_top % 100):
+                pos_top = pos_top - 50
             pos_bot = -(symbol_unit.get_pins_bot() - 1) * 50
+            if (pos_bot % 100):
+                pos_bot = pos_bot - 50
             # According to KLC we use 100mil grid, pin origin must lie on grid nodes (IEC-60617):
             if (symbol_width/2 + pin_length) % 100:
                 symbol_width = symbol_width + 100
