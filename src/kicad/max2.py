@@ -70,7 +70,7 @@ class Max2Device(gen.Device):
         self.package_dedicated_idx = -1
         self.io_pads = []
         self.power_pads = []
-        self.power_banks = 0
+        self.power_spacer = False
     
     def __find_pkg_info(self):
         '''
@@ -221,9 +221,12 @@ class Max2Parser(object):
                 if (not re.match("^(VCC|GND)", fnc) is None):
                     pad_type = gen.Pad.POWER_IN
                     # Move all power pins to power bank
-                    bank = 'POWER'
+                    if (len(bank) == 0):
+                        bank = 'B1'
                     if (not re.match("^VCC", fnc) is None):
-                        pad_pos = gen.Pad.POS_LEFT
+                        pad_pos = gen.Pad.POS_TOP
+                    else:
+                        pad_pos = gen.Pad.POS_BOT
                 elif (not re.match("^(TCK|TDO|TDI|TMS)$", fnc) is None):
                     pad_pos = gen.Pad.POS_LEFT
                     if (fnc == 'TCK'):
@@ -236,30 +239,20 @@ class Max2Parser(object):
                     fnc = 'IO_' + bank
                     if (not re.match("GCLK", fnc_opt) is None):
                         pad_type = gen.Pad.BIDIR_CLK
-                if (bank == 'POWER'):
-                    match = re.match("VCCIO([0-9])", fnc)
-                    if (not match is None):
-                        power_banks = int(match.group(1))
-                        if (power_banks > dev.power_banks):
-                            for i in range(dev.power_banks, power_banks):
-                                vcc_pad_spacer = gen.Pad(-1, 'NC', bank, "VCCIO" + str(i) + "_", '', pad_type, pad_pos)
-                                vcc_pad_spacer.write_to_file = False
-                                dev.power_pads.append(vcc_pad_spacer)
-                                gnd_pad_spacer = gen.Pad(-1, 'NC', bank, "GNDINT" + str(i) + "_", '', pad_type)
-                                gnd_pad_spacer.write_to_file = False
-                                dev.power_pads.append(gnd_pad_spacer)
-                            dev.power_banks = power_banks
+                if (not re.match("^(VCC|GND)", fnc) is None):
+                    if (not dev.power_spacer):
+                        vcc_pad_spacer = gen.Pad(-1, 'NC', bank, "VCCIO0", '', pad_type, gen.Pad.POS_TOP)
+                        vcc_pad_spacer.write_to_file = False
+                        dev.power_pads.append(vcc_pad_spacer)
+                        gnd_pad_spacer = gen.Pad(-1, 'NC', bank, "GNDINT0", '', pad_type, gen.Pad.POS_BOT)
+                        gnd_pad_spacer.write_to_file = False
+                        dev.power_pads.append(gnd_pad_spacer)
+                        dev.power_spacer = True
                     dev.power_pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt, pad_type, pad_pos))
                 else:
                     dev.io_pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt, pad_type, pad_pos))
         for dev in self.devices_list:
             dev.pads = dev.io_pads + sorted(dev.power_pads, key=operator.attrgetter('fnc'))
-        ''' Add NC pins '''
-        if self.dedicated_table.has_key("NC"):
-            for dev in self.devices_list:
-                if len(self.dedicated_table["NC"][dev.package_dedicated_idx]) != 0 and self.dedicated_table["NC"][dev.package_dedicated_idx][0] != "-":
-                    for nc_pin in self.dedicated_table["NC"][dev.package_dedicated_idx]:
-                        dev.pads.append(gen.Pad(-1, nc_pin, "NC", "NC", ""))
     
     def parse_pinouts(self):
         self.__parse_io_file()
