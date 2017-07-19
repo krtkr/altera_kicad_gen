@@ -69,8 +69,8 @@ class Max2Device(gen.Device):
         self.package_io_idx = -1
         self.package_dedicated_idx = -1
         self.io_pads = []
+        self.jtag_pads = []
         self.power_pads = []
-        self.power_spacer = False
     
     def __find_pkg_info(self):
         '''
@@ -205,8 +205,17 @@ class Max2Parser(object):
                 pad_num = io_pin[self.pad_num_idx]
                 pad_pin_name = io_pin[dev.package_io_idx]
                 pad_type = gen.Pad.BIDIR
-                pad_pos = gen.Pad.POS_RIGHT
                 bank = io_pin[self.bank_num_idx]
+                bank_num_match = re.match('B([0-9])', bank)
+                bank_num = None
+                if (bank_num_match is not None):
+                    bank_num = int(bank_num_match.group(1))
+                    if (bank_num % 2):
+                        symbol = 'B' + str(bank_num) + '_' + str(bank_num + 1)
+                        pad_pos = gen.Pad.POS_LEFT
+                    else:
+                        symbol = 'B' + str(bank_num - 1) + '_' + str(bank_num)
+                        pad_pos = gen.Pad.POS_RIGHT
                 fnc = io_pin[self.pad_fnc_idx]
                 fnc_opt = io_pin[self.pad_opt_fnc_idx]
                 if len(pad_pin_name) == 0:
@@ -222,37 +231,29 @@ class Max2Parser(object):
                     pad_type = gen.Pad.POWER_IN
                     # Move all power pins to power bank
                     if (len(bank) == 0):
-                        bank = 'B1'
+                        symbol = 'B1_2'
                     if (not re.match("^VCC", fnc) is None):
                         pad_pos = gen.Pad.POS_TOP
                     else:
                         pad_pos = gen.Pad.POS_BOT
+                    dev.power_pads.append(gen.Pad(pad_num, pad_pin_name, symbol, fnc, fnc_opt, pad_type, pad_pos))
                 elif (not re.match("^(TCK|TDO|TDI|TMS)$", fnc) is None):
-                    pad_pos = gen.Pad.POS_LEFT
                     if (fnc == 'TCK'):
                         pad_type = gen.Pad.IN_CLK
                     elif (fnc == 'TDO'):
                         pad_type = gen.Pad.OUT
                     else:
                         pad_type = gen.Pad.IN
+                    dev.jtag_pads.append(gen.Pad(pad_num, pad_pin_name, symbol, fnc, fnc_opt, pad_type, pad_pos))
                 elif (fnc == 'IO'):
-                    fnc = 'IO_' + bank
+                    fnc = 'IO' + str(bank_num) + '_' + pad_pin_name
                     if (not re.match("GCLK", fnc_opt) is None):
                         pad_type = gen.Pad.BIDIR_CLK
-                if (not re.match("^(VCC|GND)", fnc) is None):
-                    if (not dev.power_spacer):
-                        vcc_pad_spacer = gen.Pad(-1, 'NC', bank, "VCCIO0", '', pad_type, gen.Pad.POS_TOP)
-                        vcc_pad_spacer.write_to_file = False
-                        dev.power_pads.append(vcc_pad_spacer)
-                        gnd_pad_spacer = gen.Pad(-1, 'NC', bank, "GNDINT0", '', pad_type, gen.Pad.POS_BOT)
-                        gnd_pad_spacer.write_to_file = False
-                        dev.power_pads.append(gnd_pad_spacer)
-                        dev.power_spacer = True
-                    dev.power_pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt, pad_type, pad_pos))
+                    dev.io_pads.append(gen.Pad(pad_num, pad_pin_name, symbol, fnc, fnc_opt, pad_type, pad_pos))
                 else:
-                    dev.io_pads.append(gen.Pad(pad_num, pad_pin_name, bank, fnc, fnc_opt, pad_type, pad_pos))
+                    raise NameError("Unexpected")
         for dev in self.devices_list:
-            dev.pads = dev.io_pads + sorted(dev.power_pads, key=operator.attrgetter('fnc'))
+            dev.pads = sorted(dev.io_pads) + dev.jtag_pads + sorted(dev.power_pads, key=operator.attrgetter('fnc'))
     
     def parse_pinouts(self):
         self.__parse_io_file()

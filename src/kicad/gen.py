@@ -5,6 +5,8 @@ Created on 8 июл. 2017 г.
 @author: krtkr
 '''
 
+import re
+
 class Pad(object):
     '''
     Class represents a single pad within a device
@@ -31,6 +33,8 @@ class Pad(object):
         Constructor
         '''
         self.pad_num = int(pad_num)
+        self.__pin = '0'
+        self.__pin_value = 0
         self.pin = pin
         self.bank = bank
         self.fnc = fnc
@@ -39,6 +43,43 @@ class Pad(object):
         self.pad_pos = pad_pos
         # This flag determines whether 
         self.write_to_file = True
+    
+    @property
+    def pin(self):
+        return self.__pin
+    
+    @pin.setter
+    def pin(self, value):
+        pin_match = re.match("^([A-Z]+)([0-9]+)", value)
+        if (pin_match is None):
+            self.__pin_value = int(value)
+        else:
+            self.__pin_value = int(pin_match.group(2))
+            letters_part = pin_match.group(1)
+            letters_count = len(letters_part)
+            for i in range(1, letters_count + 1):
+                letter_value = ord(letters_part[letters_count - i])
+                letter_value = letter_value << (8 * i)
+                self.__pin_value = self.__pin_value + letter_value
+        self.__pin = value
+    
+    def __lt__(self, other):
+        return self.__pin_value < other.__pin_value
+    
+    def __gt__(self, other):
+        return self.__pin_value > other.__pin_value
+    
+    def __eq__(self, other):
+        return self.__pin_value == other.__pin_value
+    
+    def __le__(self, other):
+        return self.__pin_value <= other.__pin_value
+    
+    def __ge__(self, other):
+        return self.__pin_value >= other.__pin_value
+    
+    def __ne__(self, other):
+        return self.__pin_value != other.__pin_value
     
     def fnc_name(self):
         if len(self.fnc_opt) == 0:
@@ -199,21 +240,150 @@ class GenLib(object):
         # Per dev variables
         units_count = len(banks_stats)
         pin_length = (max_pin_len + 1) * 50
-        m_text_height = 300
-        m_text_width = max([
-                4,
-                len(dev.name.upper()),
-            ]) * 50
+        
+        # Calculate symbol height
+        symbol_height = 0
+        for bank in sorted(banks_stats.keys()):
+            symbol_unit = banks_stats[bank]
+            symbol_height = max([
+                    symbol_height,
+                    (symbol_unit.get_max_pins_vertical() + 1) * 100,
+                    (symbol_unit.get_max_top_pin_name_len() + 1) * 100,
+                    (symbol_unit.get_max_bot_pin_name_len() + 1) * 100,
+                ])
+        
+        # Calculate symbol width
+        symbol_width = 0
+        top_right_symbol_max = 0
+        bot_right_symbol_max = 0
+        for bank in sorted(banks_stats.keys()):
+            symbol_unit = banks_stats[bank]
+            
+            pos_top = -(symbol_unit.get_pins_top() - 1) * 50
+            if (pos_top % 100):
+                pos_top = pos_top - 50
+            pos_bot = -(symbol_unit.get_pins_bot() - 1) * 50
+            if (pos_bot % 100):
+                pos_bot = pos_bot - 50
+            
+            top_left = (-pos_top) + 50
+            bot_left = (-pos_bot) + 50
+            top_right = pos_top + (symbol_unit.get_pins_top() - 1) * 100 + 50
+            bot_right = pos_bot + (symbol_unit.get_pins_bot() - 1) * 100 + 50
+            top_max = symbol_unit.get_max_top_pin_name_len() * 50
+            bot_max = symbol_unit.get_max_bot_pin_name_len() * 50
+            left_max = symbol_unit.get_max_left_pin_name_len() * 50
+            right_max = symbol_unit.get_max_right_pin_name_len() * 50
+            right_top_pins = left_top_pins = top_max / 100
+            left_top_max = 0
+            right_top_max = 0
+            
+            top_right_symbol_max = max([
+                    top_right_symbol_max,
+                    top_right,
+                ])
+            bot_right_symbol_max = max([
+                    bot_right_symbol_max,
+                    bot_right,
+                ])
+            
+            for pad in dev.pads:
+                if (pad.bank == bank):
+                    if (pad.pad_pos == Pad.POS_LEFT and left_top_pins != 0):
+                        left_top_pins = left_top_pins - 1
+                        left_top_max = max([
+                                left_top_max,
+                                len(pad.fnc_name()),
+                            ])
+                    if (pad.pad_pos == Pad.POS_RIGHT and right_top_pins != 0):
+                        right_top_pins = right_top_pins - 1
+                        right_top_max = max([
+                                right_top_max,
+                                len(pad.fnc_name()),
+                            ])
+                    if (left_top_pins == 0 and right_top_pins == 0):
+                        break
+            
+            left_top_max = left_top_max * 50
+            right_top_max = right_top_max * 50
+            
+            if (symbol_height < symbol_unit.get_pins_left() * 100 + bot_max):
+                left_bot_pins = ((symbol_unit.get_pins_left() * 100 + bot_max) - symbol_height) / 100
+            else:
+                left_bot_pins = 0
+            
+            if (symbol_height < symbol_unit.get_pins_right() * 100 + bot_max):
+                right_bot_pins = ((symbol_unit.get_pins_right() * 100 + bot_max) - symbol_height) / 100
+            else:
+                right_bot_pins = 0
+            
+            left_bot_max = 0
+            right_bot_max = 0
+            for pad in reversed(dev.pads):
+                if (pad.bank == bank):
+                    if (pad.pad_pos == Pad.POS_LEFT and left_bot_pins != 0):
+                        left_bot_pins = left_bot_pins - 1
+                        left_bot_max = max([
+                                left_bot_max,
+                                len(pad.fnc_name()),
+                            ])
+                    if (pad.pad_pos == Pad.POS_RIGHT and right_bot_pins != 0):
+                        right_bot_pins = right_bot_pins - 1
+                        right_bot_max = max([
+                                right_bot_max,
+                                len(pad.fnc_name()),
+                            ])
+                    if (left_bot_pins == 0 and right_bot_pins == 0):
+                        break
+            
+            left_bot_max = (left_bot_max + 1) * 50
+            right_bot_max = (right_bot_max + 1) * 50
+            
+            left = max([
+                    left_max,
+                    left_top_max + top_left,
+                    left_bot_max + bot_left,
+                ])
+            
+            right = max([
+                    right_max,
+                    right_top_max + top_right,
+                    right_bot_max + bot_right,
+                ])
+            
+            symbol_width = max([
+                    symbol_width,
+                    2*left,
+                    2*right,
+                    (symbol_unit.get_max_left_pin_name_len() + 1) * 100,
+                    (symbol_unit.get_max_right_pin_name_len() + 1) * 100,
+                ])
+        
+        # Make symbol_height multiple of 200
+        if (symbol_height % 200):
+            symbol_height = symbol_height + 100
+        # Make symbol wigth multiple of 100
+        if (symbol_width % 100):
+            symbol_width = symbol_width + 50
+        
+        pos_left_base = symbol_height / 2 - 100
+        pos_right_base = symbol_height / 2 - 100
+        
+        if (symbol_width/2 + pin_length) % 100:
+            symbol_width = symbol_width + 100
+        if (symbol_height/2 + pin_length) % 100:
+            symbol_height = symbol_height + 100
+        
         # Calculated parameters
-        refdes_pos = [0, 50]
-        name_pos = [0, -50]
-        footprints_pos = [0, -150]
+        refdes_pos = [top_right_symbol_max + 50, 50 + symbol_height/2]
+        name_pos = [bot_right_symbol_max + 50, -50 - symbol_height/2]
+        footprints_pos = [bot_right_symbol_max + 50, -150 - symbol_height/2]
         
         self.__lib_file.write('#\n# ' + dev.name.upper() + '\n#\n')
         self.__lib_file.write('DEF ' + dev.name.upper() + ' U 0 40 Y Y ' + str(units_count) + ' L N\n')
-        self.__lib_file.write('F0 "U" ' + str(refdes_pos[0]) + ' ' + str(refdes_pos[1]) + ' 50 H V C CNN\n')
-        self.__lib_file.write('F1 "' + dev.name.upper() + '" ' + str(name_pos[0]) + ' ' + str(name_pos[1]) + ' 50 H V C CNN\n')
-        self.__lib_file.write('F2 "' + dev.footprint + '" ' + str(footprints_pos[0]) + ' ' + str(footprints_pos[1]) + ' 50 H I C CNN\n')
+        self.__lib_file.write('F0 "U" ' + str(refdes_pos[0]) + ' ' + str(refdes_pos[1]) + ' 50 H V L CNN\n')
+        self.__lib_file.write('F1 "' + dev.name.upper() + '" ' + str(name_pos[0]) + ' ' + str(name_pos[1]) + ' 50 H V L CNN\n')
+        self.__lib_file.write('F2 "' + dev.footprint + '" ' + str(footprints_pos[0]) + ' ' + str(footprints_pos[1]) + ' 50 H I L CNN\n')
         self.__lib_file.write('F3 "" 0 0 50 H I C CNN\n')
         self.__lib_file.write('$FPLIST\n')
         self.__lib_file.write(' ' + dev.fplist + '\n')
@@ -223,26 +393,9 @@ class GenLib(object):
         unit = 1
         for bank in sorted(banks_stats.keys()):
             symbol_unit = banks_stats[bank]
-            symbol_height = max([
-                    (symbol_unit.get_max_pins_vertical() + 1) * 100,
-                    (m_text_height/2 + symbol_unit.get_max_top_pin_name_len() * 50) * 2 + 100,
-                    (m_text_height/2 + symbol_unit.get_max_bot_pin_name_len() * 50) * 2 + 100,
-                ])
-            symbol_width = max([
-                    (symbol_unit.get_max_pins_horizontal() + symbol_unit.get_max_left_pin_name_len() + 1) * 100,
-                    (symbol_unit.get_max_pins_horizontal() + symbol_unit.get_max_right_pin_name_len() + 1) * 100,
-                    (m_text_width/2 + symbol_unit.get_max_left_pin_name_len() * 50) * 2 + 100,
-                    (m_text_width/2 + symbol_unit.get_max_right_pin_name_len() * 50) * 2 + 100,
-                ])
-            # Make symbol_height multiple of 200
-            if (symbol_height % 200):
-                symbol_height = symbol_height + 100
-            # Make symbol wigth multiple of 100
-            if (symbol_width % 100):
-                symbol_width = symbol_width + 50
             # Calculate base pin offsets
-            pos_left = symbol_height / 2 - 100
-            pos_right = symbol_height / 2 - 100
+            pos_left = pos_left_base
+            pos_right = pos_right_base
             pos_top = -(symbol_unit.get_pins_top() - 1) * 50
             if (pos_top % 100):
                 pos_top = pos_top - 50
@@ -250,10 +403,6 @@ class GenLib(object):
             if (pos_bot % 100):
                 pos_bot = pos_bot - 50
             # According to KLC we use 100mil grid, pin origin must lie on grid nodes (IEC-60617):
-            if (symbol_width/2 + pin_length) % 100:
-                symbol_width = symbol_width + 100
-            if (symbol_height/2 + pin_length) % 100:
-                symbol_height = symbol_height + 100
             self.__lib_file.write('S ' + str(-symbol_width/2) + ' ' + str(symbol_height/2) + ' ' + str(symbol_width/2) + ' ' + str(-symbol_height/2) + ' ' + str(unit) + ' 1     0 f\n')
             for pad in dev.pads:
                 if (pad.bank == bank):
