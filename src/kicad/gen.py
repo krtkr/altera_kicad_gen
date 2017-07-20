@@ -403,7 +403,7 @@ class GenLib(object):
             if (pos_bot % 100):
                 pos_bot = pos_bot - 50
             # According to KLC we use 100mil grid, pin origin must lie on grid nodes (IEC-60617):
-            self.__lib_file.write('S ' + str(-symbol_width/2) + ' ' + str(symbol_height/2) + ' ' + str(symbol_width/2) + ' ' + str(-symbol_height/2) + ' ' + str(unit) + ' 1     0 f\n')
+            self.__lib_file.write('S ' + str(-symbol_width/2) + ' ' + str(symbol_height/2) + ' ' + str(symbol_width/2) + ' ' + str(-symbol_height/2) + ' ' + str(unit) + ' 1     10 f\n')
             for pad in dev.pads:
                 if (pad.bank == bank):
                     if (pad.pad_pos == Pad.POS_BOT):
