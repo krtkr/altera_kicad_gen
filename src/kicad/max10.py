@@ -53,7 +53,7 @@ class Max10Device(gen.Device):
         ]
     
     __max10_footprints = {
-        "E144": "Housings_QFP:LQFP-144_20x20mm_Pitch0.5mm",
+        "E144": "Housings_QFP:LQFP-144-1EP[size_mm]mm_20x20mm_Pitch0.5mm",
         "M153": "",
         "F256": "",
         "F484": "",
@@ -65,7 +65,7 @@ class Max10Device(gen.Device):
     }
     
     __max10_fplists = {
-        "E144": " *QFP*Pitch0.5mm*",
+        "E144": " *QFP*1EP[size_mm]mm*Pitch0.5mm*",
         "M153": " *BGA*Pitch0.5mm*",
         "F256": " *BGA*Pitch1.0mm*",
         "F484": " *BGA*Pitch1.0mm*",
@@ -74,6 +74,16 @@ class Max10Device(gen.Device):
         "V81" : "??",
         "U169": " *BGA*Pitch0.8mm*",
         "U324": " *BGA*Pitch0.8mm*",
+    }
+    
+    __max10_e144_ep_sizes = {
+        "10M02" : "4",
+        "10M04" : "5",
+        "10M08" : "5",
+        "10M16" : "7",
+        "10M25" : "8",
+        "10M40" : "9",
+        "10M50" : "9",
     }
     
     __max10_family_descriptions = {
@@ -122,10 +132,18 @@ class Max10Device(gen.Device):
         self.fplist = self.__max10_fplists[package_name]
         self.description = self.__max10_family_descriptions[family_name] + self.__max10_package_descriptions[package_name]
         self.search_keys = self.__max10_family_search_keys[family_name] + self.__max10_package_search_keys[package_name]
-        self.doc_link = '??? UPDATE ME ???'
+        self.doc_link = 'https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/hb/max-10/m10_handbook.pdf'
         self.io_pads = {}
         self.dedicated_pads = []
         self.power_pads = []
+        if (package_name == "E144"):
+            # E144 packages use different EP size depend on LE count
+            e144_match = re.match("(10M[0-9]{2})", name)
+            if (e144_match is None):
+                raise NameError("Unable to parse device name: " + name)
+            self.footprint = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[e144_match.group(1)], self.footprint)
+            self.fplist = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[e144_match.group(1)], self.fplist)
+            self.power_pads.append(gen.Pad(-1, "145", "COMMON", "GND", "", gen.Pad.POWER_IN, gen.Pad.POS_BOT))
     
     def parse_pins_table(self):
         might_have_ddr8 = len(self.header) > self.DDR_X8
@@ -190,6 +208,8 @@ class Max10Device(gen.Device):
                     pads.pad_pos = gen.Pad.POS_LEFT
             i = i + 1
             self.pads = self.pads + io_pads
+        # First sort by pin name
+        self.power_pads = sorted(self.power_pads)
         self.pads = self.pads + sorted(self.power_pads, key=operator.attrgetter('fnc'))
 
 
