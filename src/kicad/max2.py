@@ -23,7 +23,7 @@ class Max2Device(gen.Device):
     __max2_packages = {
         "t100": "100-Pin TQFP",
         "t144": "144-Pin TQFP",
-        "m68": "68-Pin MBGA",
+        "m68":  "68-Pin MBGA",
         "m100": "100-Pin MBGA",
         "m144": "144-Pin MBGA",
         "m256": "256-Pin MBGA",
@@ -32,26 +32,26 @@ class Max2Device(gen.Device):
         "f324": "324-Pin FBGA",
     }
     __max2_footprints = {
-        "t100": "Housings_QFP:LQFP-100_14x14mm_Pitch0.5mm",
-        "t144": "Housings_QFP:LQFP-144_20x20mm_Pitch0.5mm",
-        "m68":  "",
-        "m100": "",
-        "m144": "",
-        "m256": "",
-        "f100": "",
-        "f256": "",
-        "f324": "",
+        "t100": "Package_QFP:LQFP-100_14x14mm_P0.5mm",
+        "t144": "Package_QFP:LQFP-144_20x20mm_P0.5mm",
+        "m68":  "Package_BGA:BGA-68_5.0x5.0mm_Layout9x9_P0.5mm_Ball0.3mm_Pad0.25mm_NSMD",
+        "m100": "Package_BGA:BGA-100_6.0x6.0mm_Layout11x11_P0.5mm_Ball0.3mm_Pad0.25mm_NSMD",
+        "m144": "Package_BGA:BGA-144_7.0x7.0mm_Layout13x13_P0.5mm_Ball0.3mm_Pad0.25mm_NSMD",
+        "m256": "Package_BGA:BGA-256_11.0x11.0mm_Layout20x20_P0.5mm_Ball0.3mm_Pad0.25mm_NSMD",
+        "f100": "Package_BGA:BGA-100_11.0x11.0mm_Layout10x10_P1.0mm_Ball0.5mm_Pad0.4mm_NSMD",
+        "f256": "Package_BGA:BGA-256_17.0x17.0mm_Layout16x16_P1.0mm_Ball0.5mm_Pad0.4mm_NSMD",
+        "f324": "Package_BGA:BGA-324_19.0x19.0mm_Layout18x18_P1.0mm_Ball0.5mm_Pad0.4mm_NSMD",
     }
     __max2_fplists = {
-        "t100": " *QFP*Pitch0.5mm*",
-        "t144": " *QFP*Pitch0.5mm*",
-        "m68":  " *BGA*Pitch0.5mm*",
-        "m100": " *BGA*Pitch0.5mm*",
-        "m144": " *BGA*Pitch0.5mm*",
-        "m256": " *BGA*Pitch0.5mm*",
-        "f100": " *BGA*Pitch1.0mm*",
-        "f256": " *BGA*Pitch1.0mm*",
-        "f324": " *BGA*Pitch1.0mm*",
+        "t100": " *QFP*P0.5mm*",
+        "t144": " *QFP*P0.5mm*",
+        "m68":  " *BGA*P0.5mm*",
+        "m100": " *BGA*P0.5mm*",
+        "m144": " *BGA*P0.5mm*",
+        "m256": " *BGA*P0.5mm*",
+        "f100": " *BGA*P1.0mm*",
+        "f256": " *BGA*P1.0mm*",
+        "f324": " *BGA*P1.0mm*",
     }
     
     def __init__(self, name, description, search_keys):

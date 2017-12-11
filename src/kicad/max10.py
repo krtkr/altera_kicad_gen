@@ -53,19 +53,19 @@ class Max10Device(gen.Device):
         ]
     
     __max10_footprints = {
-        "E144": "Housings_QFP:LQFP-144-1EP[size_mm]mm_20x20mm_Pitch0.5mm",
-        "M153": "",
-        "F256": "",
-        "F484": "",
-        "F672": "",
-        "V36" : "???",
-        "V81" : "???",
-        "U169": "",
-        "U324": "",
+        "E144": "Package_QFP:LQFP-144-1EP_20x20mm_P0.5mm_EP[size_mm]x[size_mm]mm",
+        "M153": "Package_BGA:BGA-153_8.0x8.0mm_Layout15x15_P0.5mm_Ball0.3mm_Pad0.25mm_NSMD", ''' https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/packaging/04r00471-00.pdf '''
+        "F256": "Package_BGA:BGA-256_17.0x17.0mm_Layout16x16_P1.0mm_Ball0.5mm_Pad0.4mm_NSMD", '''  '''
+        "F484": "Package_BGA:BGA-484_23.0x23.0mm_Layout22x22_P1.0mm_Ball0.6mm_Pad0.5mm_NSMD", '''  '''
+        "F672": "Package_BGA:BGA-672_27.0x27.0mm_Layout26x26_P1.0mm_Ball0.6mm_Pad0.5mm_NSMD", ''' https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/packaging/04r00472-00.pdf '''
+        "V36" : "Package_BGA:BGA-36_3.396x3.466mm_Layout6x6_P0.4mm_Ball0.25mm_Pad0.2mm_NSMD", ''' https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/packaging/04r00486-00.pdf '''
+        "V81" : "Package_BGA:BGA-81_4.496x4.377mm_Layout9x9_P0.4mm_Ball0.25mm_Pad0.2mm_NSMD", ''' https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/packaging/04r00478-01.pdf '''
+        "U169": "Package_BGA:BGA-169_11.0x11.0mm_Layout13x13_P0.8mm_Ball0.5mm_Pad0.4mm_NSMD", ''' https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/packaging/04r00470-01.pdf '''
+        "U324": "Package_BGA:BGA-324_15.0x15.0mm_Layout18x18_P0.8mm_Ball0.5mm_Pad0.4mm_NSMD", ''' https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/packaging/04r00474-02.pdf '''
     }
     
     __max10_fplists = {
-        "E144": " *QFP*1EP[size_mm]mm*Pitch0.5mm*",
+        "E144": " *QFP*P0.5mm*EP[size_mm]x[size_mm]mm*",
         "M153": " *BGA*Pitch0.5mm*",
         "F256": " *BGA*Pitch1.0mm*",
         "F484": " *BGA*Pitch1.0mm*",
