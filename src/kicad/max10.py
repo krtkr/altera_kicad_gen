@@ -66,14 +66,14 @@ class Max10Device(gen.Device):
     
     __max10_fplists = {
         "E144": " *QFP*P0.5mm*EP[size_mm]x[size_mm]mm*",
-        "M153": " *BGA*Pitch0.5mm*",
-        "F256": " *BGA*Pitch1.0mm*",
-        "F484": " *BGA*Pitch1.0mm*",
-        "F672": " *BGA*Pitch1.0mm*",
-        "V36" : "??",
-        "V81" : "??",
-        "U169": " *BGA*Pitch0.8mm*",
-        "U324": " *BGA*Pitch0.8mm*",
+        "M153": " *BGA*P0.5mm*",
+        "F256": " *BGA*P1.0mm*",
+        "F484": " *BGA*P1.0mm*",
+        "F672": " *BGA*P1.0mm*",
+        "V36" : " *BGA*P0.4mm*",
+        "V81" : " *BGA*P0.4mm*",
+        "U169": " *BGA*P0.8mm*",
+        "U324": " *BGA*P0.8mm*",
     }
     
     __max10_e144_ep_sizes = {
