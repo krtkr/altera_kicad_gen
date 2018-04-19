@@ -87,22 +87,23 @@ class Max10Device(gen.Device):
     }
     
     __max10_family_descriptions = {
-        'SA' : 'Single supply, analog and flash features with RSU option',
-        'SC' : 'Single supply, compact features FPGA',
-        'DA' : 'Dual supply, compact features',
-        'DC' : 'Dual supply, compact features',
-        'DF' : 'Dual supply, flash features with RSU option',
+        'SA' : 'Single supply - analog and flash features with RSU option',
+        'SC' : 'Single supply - compact features',
+        'DA' : 'Dual supply - analog and flash features with RSU option',
+        'DC' : 'Dual supply - compact features',
+        'DF' : 'Dual supply - flash features with RSU option',
     }
+    
     __max10_package_descriptions = {
-        "E144": ", TQFP package",
-        "M153": ", MBGA package",
-        "F256": ", FBGA package",
-        "F484": ", FBGA package",
-        "F672": ", FBGA package",
-        "V36" : ", WLCSP package",
-        "V81" : ", WLCSP package",
-        "U169": ", UBGA package",
-        "U324": ", UBGA package",
+        "E144": "TQFP-144",
+        "M153": "MBGA-153",
+        "F256": "FBGA-256",
+        "F484": "FBGA-484",
+        "F672": "FBGA-672",
+        "V36" : "WLCSP-36",
+        "V81" : "WLCSP-81",
+        "U169": "UBGA-169",
+        "U324": "UBGA-324",
     }
     
     __max10_family_search_keys = {
@@ -112,6 +113,7 @@ class Max10Device(gen.Device):
         'DC' : 'Dual supply FPGA',
         'DF' : 'Dual supply FPGA RSU',
     }
+    
     __max10_package_search_keys = {
         "E144": " TQFP",
         "M153": " MBGA",
@@ -124,13 +126,29 @@ class Max10Device(gen.Device):
         "U324": " UBGA",
     }
     
+    __max10_member_code = {
+        "10M02" : "2K logic elements",
+        "10M04" : "4K logic elements",
+        "10M08" : "8K logic elements",
+        "10M16" : "16K logic elements",
+        "10M25" : "25K logic elements",
+        "10M40" : "40K logic elements",
+        "10M50" : "50K logic elements",
+    }
+    
     def __init__(self, name, family_name, package_name, header, pins_table):
         super(Max10Device, self).__init__(name)
+
+        member_code_match = re.match("(10M[0-9]{2})", name)
+        if (member_code_match is None):
+            raise NameError("Unable to parse device name: " + name)
+        member_code = member_code_match.group(1)
+        
         self.header = header
         self.pins_table = pins_table
         self.footprint = self.__max10_footprints[package_name]
         self.fplist = self.__max10_fplists[package_name]
-        self.description = self.__max10_family_descriptions[family_name] + self.__max10_package_descriptions[package_name]
+        self.description = "FPGA, MAX 10, " + self.__max10_member_code[member_code] + ", " + self.__max10_family_descriptions[family_name] + ", " + self.__max10_package_descriptions[package_name]
         self.search_keys = self.__max10_family_search_keys[family_name] + self.__max10_package_search_keys[package_name]
         self.doc_link = 'https://www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/hb/max-10/m10_handbook.pdf'
         self.io_pads = {}
@@ -138,11 +156,8 @@ class Max10Device(gen.Device):
         self.power_pads = []
         if (package_name == "E144"):
             # E144 packages use different EP size depend on LE count
-            e144_match = re.match("(10M[0-9]{2})", name)
-            if (e144_match is None):
-                raise NameError("Unable to parse device name: " + name)
-            self.footprint = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[e144_match.group(1)], self.footprint)
-            self.fplist = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[e144_match.group(1)], self.fplist)
+            self.footprint = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[member_code], self.footprint)
+            self.fplist = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[member_code], self.fplist)
             self.power_pads.append(gen.Pad(-1, "145", "COMMON", "GND", "", gen.Pad.POWER_IN, gen.Pad.POS_BOT))
     
     def parse_pins_table(self):
@@ -385,7 +400,7 @@ class Max10Device(gen.Device):
 
 class Max10Parser(object):
     '''
-    MAX 10 Parser: able to create a list of avaiable devices and fill it
+    MAX 10 Parser: able to create a list of available devices and fill it
     '''
     
     def __init__(self, max10_pinouts_path):
