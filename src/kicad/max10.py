@@ -168,10 +168,6 @@ class Max10Device(gen.Device):
         pins_count = len(self.pins_table)
         vcc_unit = 0
         gnd_unit = 0
-        unit0_total_pins = 0
-        unit1_total_pins = 0
-        unit2_total_pins = 0
-        unit3_total_pins = 0
         if (pins_count == 256 or pins_count == 324):
             symbol_units = 2
         elif (pins_count == 484 or pins_count == 672):
@@ -194,43 +190,36 @@ class Max10Device(gen.Device):
             if pin_fnc[0] == 'I':
                 if (symbol_units == 1):
                     symbol = "COMMON"
-                    unit0_total_pins = unit0_total_pins + 1
-#                    if (io_bank[0] == '1' or io_bank[0] == '2' or io_bank[0] == '3' or io_bank[0] == '4'):
-#                        pad_pos = gen.Pad.POS_LEFT
-#                    else:
-#                        pad_pos = gen.Pad.POS_RIGHT
+                    if (io_bank[0] == '1' or io_bank[0] == '2' or io_bank[0] == '3' or io_bank[0] == '4'):
+                        pad_pos = gen.Pad.POS_LEFT
+                    else:
+                        pad_pos = gen.Pad.POS_RIGHT
                 elif (symbol_units == 2):
                     if (io_bank[0] == '1' or io_bank[0] == '2' or io_bank[0] == '3' or io_bank[0] == '4'):
                         symbol = "B1_2_3_4"
-                        unit0_total_pins = unit0_total_pins + 1
                     elif (io_bank[0] == '5' or io_bank[0] == '6' or io_bank[0] == '7' or io_bank[0] == '8'):
                         symbol = "B5_6_7_8"
-                        unit1_total_pins = unit1_total_pins + 1
                     else:
                         raise NameError("Unknown bank: " + io_bank)
-#                    if (io_bank[0] == '1' or io_bank[0] == '2' or io_bank[0] == '5' or io_bank[0] == '6'):
-#                        pad_pos = gen.Pad.POS_LEFT
-#                    else:
-#                        pad_pos = gen.Pad.POS_RIGHT
+                    if (io_bank[0] == '1' or io_bank[0] == '2' or io_bank[0] == '5' or io_bank[0] == '6'):
+                        pad_pos = gen.Pad.POS_LEFT
+                    else:
+                        pad_pos = gen.Pad.POS_RIGHT
                 elif (symbol_units == 4):
                     if (io_bank[0] == '1' or io_bank[0] == '2'):
                         symbol = "B1_2"
-                        unit0_total_pins = unit0_total_pins + 1
                     elif (io_bank[0] == '3' or io_bank[0] == '4'):
                         symbol = "B3_4"
-                        unit1_total_pins = unit1_total_pins + 1
                     elif (io_bank[0] == '5' or io_bank[0] == '6'):
                         symbol = "B5_6"
-                        unit2_total_pins = unit2_total_pins + 1
                     elif (io_bank[0] == '7' or io_bank[0] == '8'):
                         symbol = "B7_8"
-                        unit3_total_pins = unit3_total_pins + 1
                     else:
                         raise NameError("Unknown bank: " + io_bank)
-#                    if (io_bank[0] == '1' or io_bank[0] == '3' or io_bank[0] == '5' or io_bank[0] == '7'):
-#                        pad_pos = gen.Pad.POS_LEFT
-#                    else:
-#                        pad_pos = gen.Pad.POS_RIGHT
+                    if (io_bank[0] == '1' or io_bank[0] == '3' or io_bank[0] == '5' or io_bank[0] == '7'):
+                        pad_pos = gen.Pad.POS_LEFT
+                    else:
+                        pad_pos = gen.Pad.POS_RIGHT
                 pad_type = gen.Pad.BIDIR
                 if pin_fnc == 'Input_only':
                     pin_fnc = 'I'
@@ -254,12 +243,12 @@ class Max10Device(gen.Device):
 #                    pad_pos = gen.Pad.POS_LEFT
 #                    self.dedicated_pads.append(gen.Pad(-1, pin_pad, symbol, pad_name, "", pad_type, pad_pos))
 #                else:
-                pad_pos = gen.Pad.POS_RIGHT
+#                pad_pos = gen.Pad.POS_RIGHT
                 self.io_pads[io_bank].append(gen.Pad(-1, pin_pad, symbol, pad_name, "", pad_type, pad_pos))
             else:
                 pad_type = gen.Pad.POWER_IN
                 pad_name = pin_fnc
-                if pin_fnc[0:3] == 'VCC':
+                if pin_fnc[0:3] == 'VCC' or pin_fnc[0:3] == 'ADC' or pin_fnc[0:3] == 'ANA':
                     pad_pos = gen.Pad.POS_TOP
                     if (symbol_units == 1):
                         symbol = "COMMON"
@@ -333,66 +322,9 @@ class Max10Device(gen.Device):
                     pad_pos = gen.Pad.POS_BOT
                 self.power_pads.append(gen.Pad(-1, pin_pad, symbol, pad_name, "", pad_type, pad_pos))
         banks = sorted(self.io_pads.keys())
-        unit0_pins_counter = 0
-        unit1_pins_counter = 0
-        unit2_pins_counter = 0
-        unit3_pins_counter = 0
         for bank in banks:
             io_pads = self.io_pads[bank]
-            if len(io_pads) == 0:
-                continue
-            if (symbol_units == 1):
-                if unit0_pins_counter < unit0_total_pins/2:
-                    for pads in io_pads:
-                        pads.pad_pos = gen.Pad.POS_LEFT
-                        unit0_pins_counter = unit0_pins_counter + 1
-                        if unit0_pins_counter >= unit0_total_pins/2:
-                            break
-            elif (symbol_units == 2):
-                if (bank[0] == '1' or bank[0] == '2' or bank[0] == '3' or bank[0] == '4'):
-                    if unit0_pins_counter < unit0_total_pins/2:
-                        for pads in io_pads:
-                            pads.pad_pos = gen.Pad.POS_LEFT
-                            unit0_pins_counter = unit0_pins_counter + 1
-                            if unit0_pins_counter >= unit0_total_pins/2:
-                                break
-                elif (bank[0] == '5' or bank[0] == '6' or bank[0] == '7' or bank[0] == '8'):
-                    if unit1_pins_counter < unit1_total_pins/2:
-                        for pads in io_pads:
-                            pads.pad_pos = gen.Pad.POS_LEFT
-                            unit1_pins_counter = unit1_pins_counter + 1
-                            if unit1_pins_counter >= unit1_total_pins/2:
-                                break
-            else:
-                if (bank[0] == '1' or bank[0] == '2'):
-                    if unit0_pins_counter < unit0_total_pins/2:
-                        for pads in io_pads:
-                            pads.pad_pos = gen.Pad.POS_LEFT
-                            unit0_pins_counter = unit0_pins_counter + 1
-                            if unit0_pins_counter >= unit0_total_pins/2:
-                                break
-                elif (bank[0] == '3' or bank[0] == '4'):
-                    if unit1_pins_counter < unit1_total_pins/2:
-                        for pads in io_pads:
-                            pads.pad_pos = gen.Pad.POS_LEFT
-                            unit1_pins_counter = unit1_pins_counter + 1
-                            if unit1_pins_counter >= unit1_total_pins/2:
-                                break
-                elif (bank[0] == '5' or bank[0] == '6'):
-                    if unit2_pins_counter < unit2_total_pins/2:
-                        for pads in io_pads:
-                            pads.pad_pos = gen.Pad.POS_LEFT
-                            unit2_pins_counter = unit2_pins_counter + 1
-                            if unit2_pins_counter >= unit2_total_pins/2:
-                                break
-                elif (bank[0] == '7' or bank[0] == '8'):
-                    if unit3_pins_counter < unit3_total_pins/2:
-                        for pads in io_pads:
-                            pads.pad_pos = gen.Pad.POS_LEFT
-                            unit3_pins_counter = unit3_pins_counter + 1
-                            if unit3_pins_counter >= unit3_total_pins/2:
-                                break
-            self.pads = self.pads + sorted(io_pads)
+            self.pads = self.pads + io_pads
         # First sort by pin name
         self.power_pads = sorted(self.power_pads)
         self.pads = self.pads + sorted(self.power_pads, key=operator.attrgetter('fnc'))
