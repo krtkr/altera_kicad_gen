@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 23 апр. 2018 г.
 
@@ -10,14 +11,14 @@ class Device(object):
     all properties that you have into device
     '''
 
-    __props = dict()
-    __signals = list()
 
     def __init__(self, name):
         '''
         Constructor
         '''
-        
+        self.__props = dict()
+        self.__signals = list()
+        self.name = name
 
     def addProp(self, name, value):
         self.__props[name] = value

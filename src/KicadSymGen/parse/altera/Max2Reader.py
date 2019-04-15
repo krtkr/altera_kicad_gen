@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 23 апр. 2018 г.
 
 @author: krtkr
 '''
 
-from KicadSymGen import BaseReader, Generator, Signal
+from KicadSymGen.parse import BaseReader, Signal, Device
 
 class Max2Reader(object):
     '''

@@ -5,12 +5,16 @@ Created on 20 июл. 2017 г.
 @author: krtkr
 '''
 
-import kicad.max10
 import sys
 import getopt
 
+from KicadSymGen.draw import Library
+from KicadSymGen.generate import Generator
+
+from KicadSymGen.parse.altera import Max10Reader
+
 def print_help():
-    print 'test.py -p <pinouts_path> -d <dcm_file> -l <lib_file>'
+    print('max10_generate.py -p <pinouts_path> -d <dcm_file> -l <lib_file>')
 
 if __name__ == '__main__':
     verbose = False
@@ -34,6 +38,15 @@ if __name__ == '__main__':
             dcm_file_path = arg
         elif opt in ("-l", "--lib_file"):
             lib_file_path = arg
-    max10_gen_lib = kicad.max10.Max10GenLib(pinouts_path)
-    max10_gen_lib.generate(lib_file_path, dcm_file_path, verbose)
+
+    parse_rules = list()
+    layout = list()
+
+    max10Reader = Max10Reader(pinouts_path)
+    generator = Generator(max10Reader, parse_rules, layout)
+    if generator.generate():
+        library = Library()
+        library.save(lib_file_path, dcm_file_path, generator.symbols)
+    else:
+        print("Error: failed to generate")
     pass

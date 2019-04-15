@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 23 апр. 2018 г.
 
@@ -10,8 +11,15 @@ class Signal(object):
     as it has been parsed from documentation
     '''
 
-    def __init__(self, params):
+    def __init__(self, name):
         '''
         Constructor
         '''
-        
+        self.__props = dict()
+        self.name = name
+
+    def addProp(self, name, value):
+        self.__props[name] = value
+
+    def getPropsDict(self):
+        return self.__props

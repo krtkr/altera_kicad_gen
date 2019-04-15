@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 26 апр. 2018 г.
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 23 апр. 2018 г.
 
@@ -52,21 +53,22 @@ class Symbol(object):
         '''
         Constructor
         '''
-        self.pinNameOffset = 0
+        self.pinNameOffset = 40
         self.unitsLocked = False
         self.showPinNames = True
         self.showPinNumbers = True
         self.dateLastEdition = datetime.datetime.now()
         self.options = Symbol.OPTION_NORMAL
+        self.unitCount = 1
         self.drawings = list()
         self.footprintList = list()
         self.aliases = list()
         self.aliases.append(Alias(name))
         self.fields = list()
-        self.fields.append(Field.Field(Field.Field.REFERENCE))
-        self.fields.append(Field.Field(Field.Field.VALUE))
-        self.fields.append(Field.Field(Field.Field.FOOTPRINT))
-        self.fields.append(Field.Field(Field.Field.DATASHEET))
+        self.fields.append(Field(Field.REFERENCE))
+        self.fields.append(Field(Field.VALUE))
+        self.fields.append(Field(Field.FOOTPRINT))
+        self.fields.append(Field(Field.DATASHEET))
 
     def setDescription(self, description):
         self.aliases[0].description = description
@@ -96,6 +98,9 @@ class Symbol(object):
     def datasheetField(self):
         return self.fields[Field.Field.DATASHEET]
 
+    def addDrawing(self, drawing):
+        self.drawings.append(drawing)
+
     def addPin(self, number, name):
         new_pin = Pin.Pin(number, name)
         self.drawings.append(new_pin)
@@ -105,10 +110,28 @@ class Symbol(object):
         new_rect = Rectangle.Rectangle()
         self.drawings.append(new_rect)
         return new_rect
+    
+    def isPower(self):
+        return self.options == Symbol.OPTION_POWER
 
     def write(self, writer):
         writer.writeLib("#\n# {:s}\n#\n".format(self.aliases[0].name))
-        writer.writeLib("DEF");
+        writer.writeLib("DEF {:s}".format(self.aliases[0].name))
+        
+        if self.referenceField().value:
+            writer.writeLib(" {:s}".format(self.referenceField().value))
+        else:
+            writer.writeLib(" ~")
+
+        writer.writerLib(" {:d} {:d} {:s} {:s} {:d} {:s} {:s}\n".format(
+            0,
+            self.pinNameOffset,
+            'Y' if self.showPinNumbers else 'N',
+            'Y' if self.showPinNames else 'N',
+            self.unitCount,
+            'L' if self.unitsLocked else 'N',
+            'P' if self.isPower() else 'N'
+            ))
 
         for idx, field in enumerate(self.fields):
             '''

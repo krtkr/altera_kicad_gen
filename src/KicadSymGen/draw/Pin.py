@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 23 апр. 2018 г.
 
@@ -49,7 +50,7 @@ class Pin(object):
         self.orientation = Pin.PIN_ORT_RIGHT
         self.shape = Pin.PINSHAPE_LINE
         self.width = 0
-        self.type = Pin.PIN_UNSPECIFIED
+        self.pin_type = Pin.PIN_UNSPECIFIED
         self.visible = False
         self.name = name
         self.number = number

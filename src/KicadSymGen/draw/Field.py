@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 27 апр. 2018 г.
 
@@ -37,11 +38,11 @@ class Field(object):
     ANGLE_HORIZONTAL = 'H'
     ANGLE_VERTICAL = 'V'
 
-    def __init__(self, type, value = ""):
+    def __init__(self, field_type, value = ""):
         '''
         Constructor
         '''
-        self.type = type
+        self.field_type = field_type
         self.value = value
         self.position = [0, 0]
         self.width = 50
@@ -65,7 +66,7 @@ class Field(object):
     def write(self, writer):
         writer.writeLib(
             "F{:d} {:s} {:d} {:d} {:d} {:s} {:s} {:s} {:s}{:s}{:s}\n".format(
-                self.type,
+                self.field_type,
                 self.value,
                 self.getPosX(),
                 self.getPosY(),
