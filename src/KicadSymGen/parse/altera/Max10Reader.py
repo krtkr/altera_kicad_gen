@@ -208,7 +208,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
                         raise NameError("Expected " + str(expected_pins_count) + " pins for package " + package_name + " at file " + device_file_path + " but found " + str(len(max10_dev.getSignalsList())))
                     break;
                 else:
-                    signal = KicadSymGen.parse.Signal(row[2])
+                    signal = KicadSymGen.parse.Signal(row[Max10Reader.PIN_FNC])
                     for n, v in zip(header, row):
                         signal.addProp(n, v)
                     max10_dev.addSignal(signal)
