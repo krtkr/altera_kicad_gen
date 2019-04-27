@@ -31,7 +31,7 @@ class Writer(object):
         self.__libFile = open(self.__libFilePath, "w")
         self.__dcmFile = open(self.__dcmFilePath, "w")
         
-        self.__libFile.write("{:s} {:d}.{:d}\n",format(Writer.LIBFILE_IDENT, Writer.LIB_VERSION_MAJOR, Writer.LIB_VERSION_MINOR))
+        self.__libFile.write("{:s} {:d}.{:d}\n".format(Writer.LIBFILE_IDENT, Writer.LIB_VERSION_MAJOR, Writer.LIB_VERSION_MINOR))
         self.__libFile.write('#encoding utf-8\n')
         
         self.__dcmFile.write('{:s}\n'.format(Writer.DOCFILE_IDENT))
@@ -47,12 +47,6 @@ class Writer(object):
             self.__dcmFile.write('#End Doc Library\n')
             self.__dcmFile.close()
             self.__dcmFile = None
-
-    def __enter__(self):
-        self.openFiles()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.closeFiles()
 
     def writeLib(self, data):
         self.__libFile.write(data)
