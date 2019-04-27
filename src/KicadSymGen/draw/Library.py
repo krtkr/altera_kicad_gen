@@ -18,6 +18,8 @@ class Library(object):
         '''
 
     def save(self, libFilePath, dcmFilePath, symbolsList):
-        with Writer(libFilePath, dcmFilePath) as writer:
-            for symbol in symbolsList:
-                symbol.write(writer)
+        writer = Writer(libFilePath, dcmFilePath)
+        writer.openFiles()
+        for symbol in symbolsList:
+            symbol.write(writer)
+        writer.closeFiles()
