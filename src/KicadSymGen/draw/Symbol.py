@@ -87,16 +87,16 @@ class Symbol(object):
         self.aliases.append(new_alias)
 
     def referenceField(self):
-        return self.fields[Field.Field.REFERENCE]
+        return self.fields[Field.REFERENCE]
 
     def valueField(self):
-        return self.fields[Field.Field.VALUE]
+        return self.fields[Field.VALUE]
 
     def footprintField(self):
-        return self.fields[Field.Field.FOOTPRINT]
+        return self.fields[Field.FOOTPRINT]
 
     def datasheetField(self):
-        return self.fields[Field.Field.DATASHEET]
+        return self.fields[Field.DATASHEET]
 
     def addDrawing(self, drawing):
         self.drawings.append(drawing)
@@ -123,7 +123,7 @@ class Symbol(object):
         else:
             writer.writeLib(" ~")
 
-        writer.writerLib(" {:d} {:d} {:s} {:s} {:d} {:s} {:s}\n".format(
+        writer.writeLib(" {:d} {:d} {:s} {:s} {:d} {:s} {:s}\n".format(
             0,
             self.pinNameOffset,
             'Y' if self.showPinNumbers else 'N',
