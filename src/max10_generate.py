@@ -12,6 +12,7 @@ from KicadSymGen.draw import Library
 from KicadSymGen.generate import Generator
 
 from KicadSymGen.parse.altera import Max10Reader
+from KicadSymGen.parse.altera import Max10Layout
 
 def print_help():
     print('max10_generate.py -p <pinouts_path> -d <dcm_file> -l <lib_file>')
@@ -40,7 +41,7 @@ if __name__ == '__main__':
             lib_file_path = arg
 
     parse_rules = list()
-    layout = list()
+    layout = Max10Layout()
 
     max10Reader = Max10Reader(pinouts_path)
     generator = Generator(max10Reader, parse_rules, layout)
