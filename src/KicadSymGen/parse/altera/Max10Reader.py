@@ -27,6 +27,8 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         'IO Performance',
         ]
 
+    signal_pad_num = 'Pin Pad'
+
     BANK = 0
     VREF = 1
     PIN_FNC = 2
@@ -50,7 +52,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         'V81',
         'F672'
         ]
-    
+
     __max10_footprints = {
         "E144": "Package_QFP:LQFP-144-1EP_20x20mm_P0.5mm_EP[size_mm]x[size_mm]mm",
         "M153": "Package_BGA:BGA-153_8.0x8.0mm_Layout15x15_P0.5mm_Ball0.3mm_Pad0.25mm_NSMD",
@@ -62,7 +64,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         "U169": "Package_BGA:BGA-169_11.0x11.0mm_Layout13x13_P0.8mm_Ball0.5mm_Pad0.4mm_NSMD",
         "U324": "Package_BGA:BGA-324_15.0x15.0mm_Layout18x18_P0.8mm_Ball0.5mm_Pad0.4mm_NSMD",
     }
-    
+
     __max10_fplists = {
         "E144": " *QFP*P0.5mm*EP[size_mm]x[size_mm]mm*",
         "M153": " *BGA*P0.5mm*",
@@ -74,7 +76,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         "U169": " *BGA*P0.8mm*",
         "U324": " *BGA*P0.8mm*",
     }
-    
+
     __max10_e144_ep_sizes = {
         "10M02" : "4",
         "10M04" : "5",
@@ -84,7 +86,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         "10M40" : "8.93",
         "10M50" : "8.93",
     }
-    
+
     __max10_family_descriptions = {
         'SA' : 'Single supply - analog and flash features with RSU option',
         'SC' : 'Single supply - compact features',
@@ -92,7 +94,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         'DC' : 'Dual supply - compact features',
         'DF' : 'Dual supply - flash features with RSU option',
     }
-    
+
     __max10_package_descriptions = {
         "E144": "TQFP-144",
         "M153": "MBGA-153",
@@ -104,7 +106,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         "U169": "UBGA-169",
         "U324": "UBGA-324",
     }
-    
+
     __max10_family_search_keys = {
         'SA' : 'Single supply FPGA RSU Analog',
         'SC' : 'Single supply FPGA',
@@ -112,7 +114,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         'DC' : 'Dual supply FPGA',
         'DF' : 'Dual supply FPGA RSU',
     }
-    
+
     __max10_package_search_keys = {
         "E144": " TQFP",
         "M153": " MBGA",
@@ -124,7 +126,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         "U169": " UBGA",
         "U324": " UBGA",
     }
-    
+
     __max10_member_code = {
         "10M02" : "2K logic elements",
         "10M04" : "4K logic elements",
@@ -197,11 +199,30 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
                     if (pins_count_match is None):
                         raise NameError("Unable to parse pins count: " + package_name)
                     expected_pins_count = int(pins_count_match.group(1))
+                    header[len(header) - 1] = self.signal_pad_num
                     max10_dev = KicadSymGen.parse.Device(device_prefix + package_name)
+                    member_code_match = re.match("(10M[0-9]{2})", max10_dev.name)
+                    if (member_code_match is None):
+                        raise NameError("Unable to parse device name: " + max10_dev.name)
+                    member_code = member_code_match.group(1)
                     max10_dev.addProp("device_prefix", device_prefix)
                     max10_dev.addProp("family_name", family_name)
                     max10_dev.addProp("package_name", package_name)
                     max10_dev.addProp("header", header)
+                    footprint = self.__max10_footprints[package_name]
+                    fplist = self.__max10_fplists[package_name]
+                    if (package_name == "E144"):
+                        # E144 packages use different EP size depend on LE count
+                        footprint = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[member_code], footprint)
+                        fplist = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[member_code], fplist)
+                        signal = KicadSymGen.parse.Signal("GND")
+                        signal.addProp(self.signal_pad_num, "145")
+                        max10_dev.addSignal(signal)
+                        expected_pins_count = expected_pins_count + 1
+                    max10_dev.addProp("footprint", footprint)
+                    max10_dev.addProp("description", "FPGA, MAX 10, " + self.__max10_member_code[member_code] + ", " + self.__max10_family_descriptions[family_name] + ", " + self.__max10_package_descriptions[package_name])
+                    max10_dev.addProp("keyWords", self.__max10_family_search_keys[family_name] + self.__max10_package_search_keys[package_name])
+                    max10_dev.addProp("fplist", fplist)
                     continue
                 if (re.match("Note.+", row[0]) is not None or len(header) > len(row)):
                     if (expected_pins_count != len(max10_dev.getSignalsList())):
