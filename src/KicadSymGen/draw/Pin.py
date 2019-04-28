@@ -67,4 +67,3 @@ class Pin(object):
 
     def setVisibility(self, visible):
         self.visible = visible
-
