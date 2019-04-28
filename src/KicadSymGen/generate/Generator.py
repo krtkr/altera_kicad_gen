@@ -13,14 +13,14 @@ class Generator(object):
     This class generates Symbols using selected Parser and Layout.
     '''
 
-    def __init__(self, reader, parse_rules, layout):
+    def __init__(self, reader, parser, layout):
         '''
         Constructor
         '''
         self.reader = reader
-        self.parser = Parser(parse_rules)
+        self.parser = parser
+        self.parser.prepare()
         self.layout = layout
-        self.layout.prepare()
         self.symbols = None
 
     def generate(self):
@@ -29,10 +29,14 @@ class Generator(object):
         while dev:
             self.parser.parse(dev)
             symbol = Symbol(dev.name)
-            symbol.referenceField().value = self.getReferenceField(dev)
-            symbol.valueField().value = self.getValueField(dev)
-            symbol.footprintField().value = self.getFootprintField(dev)
-            symbol.datasheetField().value = self.getDatasheetField(dev)
+            symbol.pinNameOffset = self.parser.pinNameOffset
+            symbol.referenceField().value = self.parser.referenceField
+            symbol.valueField().value = self.parser.valueField
+            symbol.footprintField().value = self.parser.footprintField
+            symbol.datasheetField().value = self.parser.datasheetField
+            symbol.setDescription(self.parser.description)
+            symbol.setKeyWords(self.parser.keyWords)
+            symbol.setDocFileName(self.parser.docFileName)
             for unit in self.parser.units:
                 rect = symbol.addRectangle()
                 rect.setPos(1, 1)
@@ -41,23 +45,3 @@ class Generator(object):
             self.symbols.append(symbol)
             dev = self.reader.nextDevice()
         return True
-
-    def getReferenceField(self, dev):
-        t = self.layout.v_ReferenceField
-        v = self.layout.replace(t, dev, None)
-        return v
-
-    def getValueField(self, dev):
-        t = self.layout.v_ValueField
-        v = self.layout.replace(t, dev, None)
-        return v
-
-    def getFootprintField(self, dev):
-        t = self.layout.v_FootprintField
-        v = self.layout.replace(t, dev, None)
-        return v
-
-    def getDatasheetField(self, dev):
-        t = self.layout.v_DatasheetField
-        v = self.layout.replace(t, dev, None)
-        return v

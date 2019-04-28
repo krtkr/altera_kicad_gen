@@ -9,25 +9,71 @@ import re
 
 class Parser(object):
     '''
-    Parser class is used to  link signal properties from device to Units and Pins
-    according to parsing rules
+    Parser class is used to link device properties to symbols and signal
+    properties from device to Units and Pins according to parsing rules
     '''
 
     def __init__(self, rules):
         '''
         Constructor
+
+        Define default reg_ex base patterns, may be overwritten
         '''
-        
+        self.p_Name = "[a-zA-Z0-9_ ]+"
+        self.p_ID = "\[(" + self.p_Name +")\]"
+        self.p_DEV = "(DEV\[" + self.p_Name + "\])"
+        self.p_SIG = "(SIG\[" + self.p_Name + "\])"
+        '''
+        Define values used by generator
+        '''
+        self.pinNameOffset = 40
+        self.referenceField = None
+        self.valueField = None
+        self.footprintField = None
+        self.datasheetField = None
+
+        self.description = None
+        self.keyWords = None
+        self.docFileName = None
+
         self.rules = rules
         self.units = None
+
+    def prepare(self):
+        self.re_ID = re.compile(self.p_ID)
+        self.re_DEV = re.compile(self.p_DEV)
+        self.re_SIG = re.compile(self.p_SIG)
+
+    def replace(self, old_text, dev, sig = None):
         '''
-        Precompile regexps at specified
+        Replace all tokens in str unsing properties from dev and sym
         '''
-        # TODO: ...
+        tokens = self.re_DEV.findall(old_text)
+        d = dev.getPropsDict()
+        for dev_token in tokens:
+            m = self.re_ID.search(dev_token)
+            name = m.group(1)
+            if name in d:
+                v = d[name]
+                old_text = old_text.replace(dev_token, v)
+            else:
+                raise NameError("Unknown device token: " + name)
+        if sig:
+            tokens = self.re_SIG.findall(old_text)
+            d = sig.getPropsDict()
+            for sig_token in tokens:
+                m = self.re_ID.search(sig_token)
+                name = m.group()
+                if name in d:
+                    v = d[name]
+                    old_text = old_text.replace(dev_token, v)
+                else:
+                    raise NameError("Unknown signal token: " + name)
+        return old_text
 
     '''
     Parse next device using self.rules
     '''
-    def parse(self, device):
+    def parse(self, dev):
         self.units = list(list())
 

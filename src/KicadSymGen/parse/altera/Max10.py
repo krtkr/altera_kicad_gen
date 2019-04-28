@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 '''
-Created on 23 апр. 2018 г.
+Created on 28 апр. 2019 г.
 
 @author: krtkr
 '''
@@ -11,47 +10,10 @@ import re
 
 import KicadSymGen.parse
 
-class Max10Reader(KicadSymGen.parse.BaseReader):
+class Max10Parser(KicadSymGen.parse.Parser):
     '''
-    Intel (former Altera) MAX10 device tables reader
+    Intel (former Altera) MAX10 device data parser
     '''
-
-    expected_header = [
-        'Bank Number',
-        'VREF',
-        'Pin Name/Function',
-        'Optional Function(s)',
-        'Configuration Function',
-        'Dedicated Tx/Rx Channel',
-        'Emulated LVDS Output Channel',
-        'IO Performance',
-        ]
-
-    signal_pad_num = 'Pin Pad'
-
-    BANK = 0
-    VREF = 1
-    PIN_FNC = 2
-    PIN_OPT_FNC = 3
-    PIN_CFG_FNC = 4
-    TX_RX_CH = 5
-    LVDS = 6
-    IO_PERF = 7
-    PIN_PAD = 8
-    DDR_X8 = 9
-    DDR_X16 = 10
-
-    expected_packages = [
-        'U324',
-        'V36',
-        'E144',
-        'M153',
-        'U169',
-        'F256',
-        'F484',
-        'V81',
-        'F672'
-        ]
 
     __max10_footprints = {
         "E144": "Package_QFP:LQFP-144-1EP_20x20mm_P0.5mm_EP[size_mm]x[size_mm]mm",
@@ -137,6 +99,80 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
         "10M50" : "50K logic elements",
     }
 
+    def __init__(self, rules):
+        '''
+        '''
+        super(Max10Parser, self).__init__(rules)
+        self.pinNameOffset = 20
+        self.referenceField = "U"
+
+    '''
+    Parse next device using self.rules
+    '''
+    def parse(self, dev):
+        super(Max10Parser, self).parse(dev)
+        d = dev.getPropsDict()
+
+        member_code_match = re.match("(10M[0-9]{2})", dev.name)
+        if (member_code_match is None):
+            raise NameError("Unable to parse device name: " + dev.name)
+        member_code = member_code_match.group(1)
+        self.footprintField = self.__max10_footprints[d['package_name']]
+        self.fplist = self.__max10_fplists[d['package_name']]
+        if (d['package_name'] == "E144"):
+            # E144 packages use different EP size depend on LE count
+            self.footprintField = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[member_code], self.footprintField)
+            self.fplist = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[member_code], self.fplist)
+
+        self.valueField = d['device_prefix'] + d['package_name']
+        self.datasheetField = ""
+
+        self.description = "FPGA, MAX 10, " + self.__max10_member_code[member_code] + ", " + self.__max10_family_descriptions[d['family_name']] + ", " + self.__max10_package_descriptions[d['package_name']]
+        self.keyWords = self.__max10_family_search_keys[d['family_name']] + self.__max10_package_search_keys[d['package_name']]
+        self.docFileName = "https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/hb/max-10/m10_datasheet.pdf"
+
+class Max10Reader(KicadSymGen.parse.BaseReader):
+    '''
+    Intel (former Altera) MAX10 device tables reader
+    '''
+
+    expected_header = [
+        'Bank Number',
+        'VREF',
+        'Pin Name/Function',
+        'Optional Function(s)',
+        'Configuration Function',
+        'Dedicated Tx/Rx Channel',
+        'Emulated LVDS Output Channel',
+        'IO Performance',
+        ]
+
+    signal_pad_num = 'Pin Pad'
+
+    BANK = 0
+    VREF = 1
+    PIN_FNC = 2
+    PIN_OPT_FNC = 3
+    PIN_CFG_FNC = 4
+    TX_RX_CH = 5
+    LVDS = 6
+    IO_PERF = 7
+    PIN_PAD = 8
+    DDR_X8 = 9
+    DDR_X16 = 10
+
+    expected_packages = [
+        'U324',
+        'V36',
+        'E144',
+        'M153',
+        'U169',
+        'F256',
+        'F484',
+        'V81',
+        'F672'
+        ]
+
     def __init__(self, max10_pinouts_path):
         '''
         Constructor
@@ -201,28 +237,14 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
                     expected_pins_count = int(pins_count_match.group(1))
                     header[len(header) - 1] = self.signal_pad_num
                     max10_dev = KicadSymGen.parse.Device(device_prefix + package_name)
-                    member_code_match = re.match("(10M[0-9]{2})", max10_dev.name)
-                    if (member_code_match is None):
-                        raise NameError("Unable to parse device name: " + max10_dev.name)
-                    member_code = member_code_match.group(1)
-                    max10_dev.addProp("device_prefix", device_prefix)
-                    max10_dev.addProp("family_name", family_name)
-                    max10_dev.addProp("package_name", package_name)
-                    max10_dev.addProp("header", header)
-                    footprint = self.__max10_footprints[package_name]
-                    fplist = self.__max10_fplists[package_name]
                     if (package_name == "E144"):
-                        # E144 packages use different EP size depend on LE count
-                        footprint = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[member_code], footprint)
-                        fplist = re.sub("\[size_mm\]", self.__max10_e144_ep_sizes[member_code], fplist)
                         signal = KicadSymGen.parse.Signal("GND")
                         signal.addProp(self.signal_pad_num, "145")
                         max10_dev.addSignal(signal)
                         expected_pins_count = expected_pins_count + 1
-                    max10_dev.addProp("footprint", footprint)
-                    max10_dev.addProp("description", "FPGA, MAX 10, " + self.__max10_member_code[member_code] + ", " + self.__max10_family_descriptions[family_name] + ", " + self.__max10_package_descriptions[package_name])
-                    max10_dev.addProp("keyWords", self.__max10_family_search_keys[family_name] + self.__max10_package_search_keys[package_name])
-                    max10_dev.addProp("fplist", fplist)
+                    max10_dev.addProp("device_prefix", device_prefix)
+                    max10_dev.addProp("family_name", family_name)
+                    max10_dev.addProp("package_name", package_name)
                     continue
                 if (re.match("Note.+", row[0]) is not None or len(header) > len(row)):
                     if (expected_pins_count != len(max10_dev.getSignalsList())):

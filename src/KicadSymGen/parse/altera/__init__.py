@@ -1,3 +1,2 @@
-from .Max10Layout import *
-from .Max10Reader import *
+from .Max10 import *
 from .Max2Reader import *
