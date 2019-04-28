@@ -115,8 +115,8 @@ class Symbol(object):
         return self.options == Symbol.OPTION_POWER
 
     def write(self, writer):
-        writer.writeLib("#\n# {:s}\n#\n".format(self.aliases[0].name))
-        writer.writeLib("DEF {:s}".format(self.aliases[0].name))
+        writer.writeLib("#\n# {:s}\n#\n".format(self.aliases[0].name.upper()))
+        writer.writeLib("DEF {:s}".format(self.aliases[0].name.upper()))
         
         if self.referenceField().value:
             writer.writeLib(" {:s}".format(self.referenceField().value))
