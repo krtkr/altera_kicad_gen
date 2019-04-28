@@ -139,7 +139,7 @@ class Symbol(object):
             names now that fields names come in dynamically through the template
             fieldnames.
             '''
-            if field.value:
+            if not field.value is None:
                 field.write(writer)
 
         '''
