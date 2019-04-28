@@ -129,7 +129,7 @@ class Symbol(object):
             'Y' if self.showPinNumbers else 'N',
             'Y' if self.showPinNames else 'N',
             self.unitCount,
-            'L' if self.unitsLocked else 'N',
+            'L' if self.unitsLocked else 'F',
             'P' if self.isPower() else 'N'
             ))
 
