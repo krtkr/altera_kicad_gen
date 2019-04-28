@@ -65,7 +65,7 @@ class Field(object):
 
     def write(self, writer):
         writer.writeLib(
-            "F{:d} {:s} {:d} {:d} {:d} {:s} {:s} {:s} {:s}{:s}{:s}\n".format(
+            "F{:d} \"{:s}\" {:d} {:d} {:d} {:s} {:s} {:s} {:s}{:s}{:s}\n".format(
                 self.field_type,
                 self.value,
                 self.getPosX(),
