@@ -185,22 +185,20 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
 
     def nextDevice(self):
         max10_dev = None
-        if self.device_file_fd:
-            self.device_file_fd.close()
-            self.device_file_fd = None
-        if len(self.max10_device_files):
-            device_file_path = self.max10_device_files.pop()
-            device_file_path = os.path.join(self.max10_pinouts_path, device_file_path)
-            print("Processing file {:s}".format(device_file_path))
-            self.device_file_fd = open(device_file_path, 'r', encoding="ISO-8859-1")
-            csv_reader = csv.reader(self.device_file_fd, delimiter='\t')
+        while len(self.max10_device_files):
+            if self.device_file_fd is None:
+                device_file_path = self.max10_device_files.pop()
+                device_file_path = os.path.join(self.max10_pinouts_path, device_file_path)
+                print("Processing file {:s}".format(device_file_path))
+                self.device_file_fd = open(device_file_path, 'r', encoding="ISO-8859-1")
+                self.csv_reader = csv.reader(self.device_file_fd, delimiter='\t')
             first_row = None
             header = None
             device_prefix = None
             package_name = None
             family_name = None
             expected_pins_count = 0
-            for row in csv_reader:
+            for row in self.csv_reader:
                 if (len(row) == 0):
                     continue
                 if (first_row is None):
@@ -255,4 +253,13 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
                     for n, v in zip(header, row):
                         signal.addProp(n, v)
                     max10_dev.addSignal(signal)
+            if max10_dev is None:
+                '''
+                Try next device file
+                '''
+                self.device_file_fd.close()
+                self.csv_reader = None
+                self.device_file_fd = None
+            else:
+                break
         return max10_dev
