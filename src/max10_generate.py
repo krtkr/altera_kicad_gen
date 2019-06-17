@@ -47,6 +47,7 @@ if __name__ == '__main__':
     max10Reader = Max10Reader(pinouts_path)
     generator = Generator(max10Reader, parse, layout)
     if generator.generate():
+        print("Done generating, write Library")
         library = Library()
         library.save(lib_file_path, dcm_file_path, generator.symbols)
     else:
