@@ -50,6 +50,7 @@ if __name__ == '__main__':
         print("Done generating, write Library")
         library = Library()
         library.save(lib_file_path, dcm_file_path, generator.symbols)
+        print("Done writing Library, finish")
     else:
         print("Error: failed to generate")
     pass
