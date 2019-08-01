@@ -20,6 +20,9 @@ class Device(object):
         self.__signals = list()
         self.name = name
 
+    def __getitem__ (self, key):
+        return self.__props[key]
+
     def addProp(self, name, value):
         self.__props[name] = value
 

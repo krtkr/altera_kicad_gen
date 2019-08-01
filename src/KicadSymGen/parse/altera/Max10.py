@@ -111,6 +111,10 @@ class Max10Parser(KicadSymGen.parse.Parser):
     '''
     def parse(self, dev):
         super(Max10Parser, self).parse(dev)
+
+        self.pin_name = "SIG[Pin Name/Function]"
+        self.pin_number = "SIG[Pin Pad]"
+
         d = dev.getPropsDict()
 
         member_code_match = re.match("(10M[0-9]{2})", dev.name)
@@ -130,6 +134,17 @@ class Max10Parser(KicadSymGen.parse.Parser):
         self.description = "FPGA, MAX 10, " + self.__max10_member_code[member_code] + ", " + self.__max10_family_descriptions[d['family_name']] + ", " + self.__max10_package_descriptions[d['package_name']]
         self.keyWords = self.__max10_family_search_keys[d['family_name']] + self.__max10_package_search_keys[d['package_name']]
         self.docFileName = "https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/hb/max-10/m10_datasheet.pdf"
+
+        banks = list()
+        for sig in dev.getSignalsList():
+            bank_num = sig["Bank Number"]
+            if not bank_num in banks:
+                banks.append(bank_num)
+                self.units.append(list())
+            idx = banks.index(bank_num)
+            self.units[idx].append(sig)
+
+        banks = None
 
 class Max10Reader(KicadSymGen.parse.BaseReader):
     '''
@@ -238,6 +253,8 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
                     if (package_name == "E144"):
                         signal = KicadSymGen.parse.Signal("GND")
                         signal.addProp(self.signal_pad_num, "145")
+                        signal.addProp("Bank Number", "")
+                        signal.addProp("Pin Name/Function", "GND")
                         max10_dev.addSignal(signal)
                         expected_pins_count = expected_pins_count + 1
                     max10_dev.addProp("device_prefix", device_prefix)

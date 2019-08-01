@@ -19,7 +19,7 @@ class Parser(object):
 
         Define default reg_ex base patterns, may be overwritten
         '''
-        self.p_Name = "[a-zA-Z0-9_ ]+"
+        self.p_Name = "[a-zA-Z0-9_ /]+"
         self.p_ID = "\[(" + self.p_Name +")\]"
         self.p_DEV = "(DEV\[" + self.p_Name + "\])"
         self.p_SIG = "(SIG\[" + self.p_Name + "\])"
@@ -38,6 +38,12 @@ class Parser(object):
 
         self.rules = rules
         self.units = None
+
+        '''
+        Customize:
+        '''
+        self.pin_name = "SIG[PIN_NAME]"
+        self.pin_number = "SIG[PIN_NUM]"
 
     def prepare(self):
         self.re_ID = re.compile(self.p_ID)
@@ -63,17 +69,30 @@ class Parser(object):
             d = sig.getPropsDict()
             for sig_token in tokens:
                 m = self.re_ID.search(sig_token)
-                name = m.group()
+                name = m.group(1)
                 if name in d:
                     v = d[name]
-                    old_text = old_text.replace(dev_token, v)
+                    old_text = old_text.replace(sig_token, v)
                 else:
                     raise NameError("Unknown signal token: " + name)
         return old_text
 
-    '''
-    Parse next device using self.rules
-    '''
     def parse(self, dev):
+        '''
+        Parse next device using self.rules
+        '''
         self.units = list(list())
 
+    def getPinName(self, dev, sig):
+        '''
+        Returns device pin name
+        '''
+        pinName = self.replace(self.pin_name, dev, sig)
+        return pinName
+
+    def getPinNumber(self, dev, sig):
+        '''
+        Returns device pin name
+        '''
+        pinNumber = self.replace(self.pin_number, dev, sig)
+        return pinNumber

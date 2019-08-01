@@ -37,11 +37,15 @@ class Generator(object):
             symbol.setDescription(self.parser.description)
             symbol.setKeyWords(self.parser.keyWords)
             symbol.setDocFileName(self.parser.docFileName)
+            unit_idx = 0
             for unit in self.parser.units:
                 rect = symbol.addRectangle()
-                rect.setPos(1, 1)
-                for pin in unit:
-                    symbol.addDrawing(pin)
+                rect.setPos(30, 50)
+                rect.setEnd(-30,-50)
+                rect.unit = unit_idx
+                for sig in unit:
+                    symbol.addPin(self.parser.getPinNumber(dev, sig), self.parser.getPinName(dev, sig))
+                unit_idx = unit_idx + 1
             self.symbols.append(symbol)
             dev = self.reader.nextDevice()
         return True

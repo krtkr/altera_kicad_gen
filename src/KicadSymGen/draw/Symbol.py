@@ -102,12 +102,12 @@ class Symbol(object):
         self.drawings.append(drawing)
 
     def addPin(self, number, name):
-        new_pin = Pin.Pin(number, name)
+        new_pin = Pin(number, name)
         self.drawings.append(new_pin)
         return new_pin
 
     def addRectangle(self):
-        new_rect = Rectangle.Rectangle()
+        new_rect = Rectangle()
         self.drawings.append(new_rect)
         return new_rect
     
