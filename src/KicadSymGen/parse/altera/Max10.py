@@ -107,9 +107,12 @@ class Max10Parser(KicadSymGen.parse.Parser):
         self.pinNameOffset = 20
         self.referenceField = "U"
         self.re_CLK = re.compile("CLK[0-9]+p")
-        self.re_NC = re.compile("NC")
-        self.re_POWER = re.compile("GND|VCC")
+        self.re_NC = re.compile("NC|DNU")
+        self.re_POWER = re.compile("GND|VCC|REFGND")
         self.re_VREF = re.compile("VREF")
+        self.re_InputONLY = re.compile("Input_only")
+        self.re_IO = re.compile("IO")
+        self.re_Analog = re.compile("ANA[0-9A-Z]+|ADC_VREF")
 
     '''
     Parse next device using self.rules
@@ -169,7 +172,8 @@ class Max10Parser(KicadSymGen.parse.Parser):
             name = self.appendName(name, sig['Optional Function(s)'])
         if (sig['Dedicated Tx/Rx Channel']):
             name = self.appendName(name, sig['Dedicated Tx/Rx Channel'])
-        name = self.appendName(name, sig['Pin Name/Function'])
+        if not name:
+            name = self.appendName(name, sig['Pin Name/Function'])
         return name
 
     def getPinShape(self, dev, sig):
@@ -185,8 +189,14 @@ class Max10Parser(KicadSymGen.parse.Parser):
             return Pin.PIN_POWER_IN
         elif self.re_VREF.match(sig['Optional Function(s)']):
             return Pin.PIN_INPUT
-        else:
+        elif self.re_IO.match(sig['Pin Name/Function']):
             return Pin.PIN_BIDI
+        elif self.re_InputONLY.match(sig['Pin Name/Function']):
+            return Pin.PIN_INPUT
+        elif self.re_Analog.match(sig['Pin Name/Function']):
+            return Pin.PIN_INPUT
+        else:
+            raise NameError("Unable to parse pin direction")
 
     def getBankLabel(self, dev, sig):
         if (sig['Bank Number']):

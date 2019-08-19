@@ -49,6 +49,8 @@ class Generator(object):
                             self.parser.getPinNumber(dev, sig),
                             self.parser.getPinName(dev, sig))
                     pin.unit = unit_idx
+                    pin.pin_type = self.parser.getPinType(dev, sig)
+                    pin.shape = self.parser.getPinShape(dev, sig)
                     pins_list.append(pin)
                     pins_longest_name_len = max(pins_longest_name_len, len(pin.name))
 
@@ -66,29 +68,41 @@ class Generator(object):
                 ''' Bank label if any '''
                 bank_label = self.parser.getBankLabel(dev, sig)
                 if (bank_label):
-                    pins_longest_name_len = pins_longest_name_len + 4
+                    pins_longest_name_len = pins_longest_name_len + 2
 
                 ''' Calculate symbol geometry '''
                 pins_count = len(unit)
                 # TODO: allow pin stacking here
                 pin_y = pins_count / 2.0 * 100.0
                 pin_y = int(pin_y) - 50
+                pin_y = int(pin_y + pin_y % 100)
                 # Find nearest lager even number
                 pins_longest_name_len = int((pins_longest_name_len + 1) / 2) * 2
 
                 sym_width = max(pins_longest_name_len * 50, 300)
                 sym_width = int(sym_width/2)
-                rect.setPos(sym_width, pin_y + 100)
-                rect.setEnd(-sym_width,-pin_y - 100)
+                sym_hight = max(int(len(bank_label) / 2) * 60, pin_y)
+
+                rect.setPos(sym_width, sym_hight + 100)
+                rect.setEnd(-sym_width,-sym_hight - 100)
 
                 ''' Place pins '''
                 for pin in pins_list:
+                    pin.length = 200
                     pin.setPos(-sym_width-pin.length, pin_y)
                     pin_y = pin_y - 100
                     pin.convert = 1
                     pin.visible = 1
-                    pin.pin_type = self.parser.getPinType(dev, sig)
-                    pin.shape = self.parser.getPinShape(dev, sig)
+
+                ''' Place label '''
+                if (bank_label):
+                    bank_label = symbol.addText(bank_label)
+                    bank_label.unit = unit_idx
+                    bank_label.angle = 900
+                    bank_label.setPos(sym_width - 100, 0)
+                    bank_label.width = 75
+                    bank_label.bold = 1
+
             self.symbols.append(symbol)
             dev = self.reader.nextDevice()
         return True
