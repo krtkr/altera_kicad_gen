@@ -66,7 +66,7 @@ class Generator(object):
                 ''' Bank label if any '''
                 bank_label = self.parser.getBankLabel(dev, sig)
                 if (bank_label):
-                    pins_longest_name_len = pins_longest_name_len + 100
+                    pins_longest_name_len = pins_longest_name_len + 4
 
                 ''' Calculate symbol geometry '''
                 pins_count = len(unit)
