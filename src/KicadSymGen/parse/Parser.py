@@ -7,6 +7,8 @@ Created on 23 апр. 2018 г.
 
 import re
 
+import KicadSymGen.draw
+
 class Parser(object):
     '''
     Parser class is used to link device properties to symbols and signal
@@ -96,3 +98,12 @@ class Parser(object):
         '''
         pinNumber = self.replace(self.pin_number, dev, sig)
         return pinNumber
+
+    def getPinShape(self, dev, sig):
+        return Pin.PINSHAPE_LINE
+
+    def getPinType(self, dev, sig):
+        return Pin.PIN_UNSPECIFIED
+
+    def getBankLabel(self, dev, sig):
+        return None
