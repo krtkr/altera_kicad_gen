@@ -8,6 +8,7 @@ Created on 23 апр. 2018 г.
 from KicadSymGen.draw import Field
 from KicadSymGen.draw import Pin
 from KicadSymGen.draw import Rectangle
+from KicadSymGen.draw import Text
 
 import datetime
 
@@ -110,7 +111,13 @@ class Symbol(object):
         new_rect = Rectangle()
         self.drawings.append(new_rect)
         return new_rect
-    
+
+    def addText(self, text):
+        new_text = Text()
+        new_text.setText(text)
+        self.drawings.append(new_text)
+        return new_text
+
     def isPower(self):
         return self.options == Symbol.OPTION_POWER
 
