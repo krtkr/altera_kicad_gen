@@ -8,6 +8,7 @@ import os
 import csv
 import re
 
+from KicadSymGen.draw import Pin
 import KicadSymGen.parse
 
 class Max10Parser(KicadSymGen.parse.Parser):
@@ -105,6 +106,10 @@ class Max10Parser(KicadSymGen.parse.Parser):
         super(Max10Parser, self).__init__(rules)
         self.pinNameOffset = 20
         self.referenceField = "U"
+        self.re_CLK = re.compile("CLK[0-9]+p")
+        self.re_NC = re.compile("NC")
+        self.re_POWER = re.compile("GND|VCC")
+        self.re_VREF = re.compile("VREF")
 
     '''
     Parse next device using self.rules
@@ -145,6 +150,48 @@ class Max10Parser(KicadSymGen.parse.Parser):
             self.units[idx].append(sig)
 
         banks = None
+
+    def appendName(self, name, val):
+        if (name):
+            name = name + "/" + val
+        else:
+            name = val
+        return name
+
+    def getPinName(self, dev, sig):
+        '''
+        Returns device pin name
+        '''
+        name = ""
+        if (sig['Configuration Function']):
+            name = self.appendName(name, sig['Configuration Function'])
+        if (sig['Optional Function(s)']):
+            name = self.appendName(name, sig['Optional Function(s)'])
+        if (sig['Dedicated Tx/Rx Channel']):
+            name = self.appendName(name, sig['Dedicated Tx/Rx Channel'])
+        name = self.appendName(name, sig['Pin Name/Function'])
+        return name
+
+    def getPinShape(self, dev, sig):
+        if self.re_CLK.match(sig['Optional Function(s)']):
+            return Pin.PINSHAPE_CLOCK
+        else:
+            return Pin.PINSHAPE_LINE
+
+    def getPinType(self, dev, sig):
+        if self.re_NC.match(sig['Pin Name/Function']):
+            return Pin.PIN_NC
+        elif self.re_POWER.match(sig['Pin Name/Function']):
+            return Pin.PIN_POWER_IN
+        elif self.re_VREF.match(sig['Optional Function(s)']):
+            return Pin.PIN_INPUT
+        else:
+            return Pin.PIN_BIDI
+
+    def getBankLabel(self, dev, sig):
+        if (sig['Bank Number']):
+            return "Bank" + sig['Bank Number'] + ", " + sig['VREF']
+        return ""
 
 class Max10Reader(KicadSymGen.parse.BaseReader):
     '''
@@ -255,6 +302,9 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
                         signal.addProp(self.signal_pad_num, "145")
                         signal.addProp("Bank Number", "")
                         signal.addProp("Pin Name/Function", "GND")
+                        signal.addProp("Configuration Function", "")
+                        signal.addProp("Optional Function(s)", "")
+                        signal.addProp("Dedicated Tx/Rx Channel", "")
                         max10_dev.addSignal(signal)
                         expected_pins_count = expected_pins_count + 1
                     max10_dev.addProp("device_prefix", device_prefix)
