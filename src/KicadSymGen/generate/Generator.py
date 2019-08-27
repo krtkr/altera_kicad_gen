@@ -43,7 +43,8 @@ class Generator(object):
                 rect = symbol.addRectangle()
                 rect.unit = unit_idx
                 pins_list = list()
-                pins_longest_name_len = 0
+                pins_name_len_max = 0
+                pins_num_len_max = 2
                 for sig in unit:
                     pin = symbol.addPin(
                             self.parser.getPinNumber(dev, sig),
@@ -52,7 +53,8 @@ class Generator(object):
                     pin.pin_type = self.parser.getPinType(dev, sig)
                     pin.shape = self.parser.getPinShape(dev, sig)
                     pins_list.append(pin)
-                    pins_longest_name_len = max(pins_longest_name_len, len(pin.name))
+                    pins_name_len_max = max(pins_name_len_max, len(pin.name))
+                    pins_num_len_max = max(pins_num_len_max, len(str(pin.number)))
 
                 ''' Sort pins '''
                 if (unit_idx == symbol.unitCount):
@@ -68,7 +70,7 @@ class Generator(object):
                 ''' Bank label if any '''
                 bank_label = self.parser.getBankLabel(dev, sig)
                 if (bank_label):
-                    pins_longest_name_len = pins_longest_name_len + 2
+                    pins_name_len_max = pins_name_len_max + 2
 
                 ''' Calculate symbol geometry '''
                 pins_count = len(unit)
@@ -77,9 +79,9 @@ class Generator(object):
                 pin_y = int(pin_y) - 50
                 pin_y = int(pin_y + pin_y % 100)
                 # Find nearest lager even number
-                pins_longest_name_len = int((pins_longest_name_len + 1) / 2) * 2
+                pins_name_len_max = int((pins_name_len_max + 1) / 2) * 2
 
-                sym_width = max(pins_longest_name_len * 50, 300)
+                sym_width = max(pins_name_len_max * 50, 300)
                 sym_width = int(sym_width/2)
                 sym_hight = max(int(len(bank_label) / 2) * 60, pin_y)
 
@@ -88,7 +90,11 @@ class Generator(object):
 
                 ''' Place pins '''
                 for pin in pins_list:
-                    pin.length = 200
+                    ''' According to the KLC pin lenght depends on pin number:
+                      1..2 => 100 mil
+                      3 => 150 mil
+                      4 => 200 mil'''
+                    pin.length = 50 * pins_num_len_max
                     pin.setPos(-sym_width-pin.length, pin_y)
                     pin_y = pin_y - 100
                     pin.convert = 1
