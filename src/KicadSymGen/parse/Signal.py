@@ -19,7 +19,10 @@ class Signal(object):
         self.name = name
 
     def __getitem__(self, key):
-        return self.__props[key]
+        if key in self.__props:
+            return self.__props[key]
+        else:
+            return None
 
     def addProp(self, name, value):
         self.__props[name] = value
