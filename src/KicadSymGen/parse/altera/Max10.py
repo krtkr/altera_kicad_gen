@@ -172,6 +172,10 @@ class Max10Parser(KicadSymGen.parse.Parser):
             name = self.appendName(name, sig['Optional Function(s)'])
         if (sig['Dedicated Tx/Rx Channel']):
             name = self.appendName(name, sig['Dedicated Tx/Rx Channel'])
+        if (sig['DQS X8']):
+            name = self.appendName(name, sig['DQS X8'])
+        if (sig['DQS X16']):
+            name = self.appendName(name, sig['DQS X16'])
         if not name:
             name = self.appendName(name, sig['Pin Name/Function'])
         return name
@@ -305,7 +309,7 @@ class Max10Reader(KicadSymGen.parse.BaseReader):
                     if (pins_count_match is None):
                         raise NameError("Unable to parse pins count: " + package_name)
                     expected_pins_count = int(pins_count_match.group(1))
-                    header[len(header) - 1] = self.signal_pad_num
+                    header[self.PIN_PAD] = self.signal_pad_num
                     max10_dev = KicadSymGen.parse.Device(device_prefix + package_name)
                     if (package_name == "E144"):
                         signal = KicadSymGen.parse.Signal("GND")
